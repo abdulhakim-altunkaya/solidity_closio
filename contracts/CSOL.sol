@@ -20,12 +20,83 @@ contract CSOL is ERC20Capped, Ownable {
     //creating token based on lazy minting capped model
     constructor(uint cap) ERC20("Closio", "CSOL") ERC20Capped(cap*(10**18)) {}
 
+    //Owner will set Managers. Managers will decide on minting for investors and other important tasks
+    //Managers will be limited to 3 addresses. Votes of 2 managers will be enough to mint/burn tokens.
+    //Currently, owner will be among managers. However, owner can be set to a different address as well.
+    mapping(address => bool) public managersMapping;
+    address[] public managersArray;
+    
+    uint public managersNumber = 3;
+    function changeManagersNumber(uint _newNumber) external onlyOwner {
+        require(_newNumber > 3, "Managers number cannot be less than 3");
+        managersNumber = _newNumber;
+    }
+
+    function setManagers(address _newManager) public onlyOwner {
+        require(managersArray.length < 3, "Managers list is full. No space for a new manager");
+        managersMapping[_newManager] = true;
+        managersArray.push(_newManager);
+    }
+    function removeManagers(address _manager) public onlyOwner {
+        require(managersArray.length > 1, "Must be at least 2 managers before deleting 1");
+        require(managersMapping[_manager] == true, "Target address is not a manager");
+        managersMapping[_manager] = false;
+
+        //find the index number of target manager in managersArray
+        //targetIndex set to an arbitrary high number so that we can add a security check before the second ForLoop
+        uint targetIndex = 99999; 
+        for(uint i = 0; i<managersArray.length; i++) {
+            if(managersArray[i] == _manager) {
+                targetIndex = i;
+                break;
+            }
+        }
+        require(targetIndex <managersArray.length, "target index is not detected");
+        for(uint i = targetIndex; i<managersArray.length-1; i++){
+            managersArray[targetIndex] = managersArray[targetIndex+1];
+        }
+        managersArray.pop();
+    }
+
+    function displayManagers() external view returns(address[] memory) {
+        return managersArray;
+    }
+
+
+
+
+    bool public isMintingOpen = false;
+    function unlockMinting() external onlyManagers {
+
+    }
+
+    mapping(address => bool) public managersPermit;
+    function unlockMinting()
+        function vote(bool approve) public {
+        require(!votes[msg.sender], "You have already voted");
+
+        votes[msg.sender] = approve;
+        voteCount++;
+
+        if (voteCount >= 3 && !isApproved) {
+            isApproved = true;
+        }
+    }
+
+
+
+    modifier onlyWhitelistedManagers() {
+        require(msg.sender)
+    }
+
     //minting function for the owner, I can use _mint function in ERC20Capped but this one helps
     //with managing decimals and easier to integrate with frontend
     function mintOwner(uint _amount) external onlyOwner {
-        require()
+        require(_amount > 0 && _amount < 1000, "mint between 0 and 1000");
+        require(totalSupply + _amount <= tokenCap, "Maximum minting limit exceeded");
+        _mint(msg.sender, _amount*(10**18));
+        emit TokenMinted(msg.sender, _amount);
     }
-
 
 
 }
