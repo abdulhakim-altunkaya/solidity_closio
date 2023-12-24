@@ -14,8 +14,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract CSOL is ERC20Capped, Ownable {
 
     //events for token minting and burning
-    event TokenMintedInvestors(address minter, uint amount);
     event TokenMintedTeam(address minter, uint amount);
+    event TokenMintedInvestors(address minter, uint amount);
+    event TokenMintedExchanges(address minter, uint amount);
     event TokenBurned(address burner, uint amount);
 
     //creating token based on lazy minting capped model
@@ -94,9 +95,8 @@ contract CSOL is ERC20Capped, Ownable {
         positiveVotes = 0;
     }
 
-    //We will look for majority of votes by managers. Then owner can execute important functions, such as the one here
-    //15% of token supply will be going to investors, incrementally. Firstly 5 percent, then 4,...
-    //First 5 percent is 5000000 millions tokens.
+    //15 millions tokens will be for investors
+    //Each minting will be limited to 5 millions for extra security
     function mintInvestors(uint _amount, address _receiver) external onlyOwner {
         require(positiveVotes >= managersArray.length/2, "Not enough votes by managers");
         require(_amount > 0 && _amount < 5000001, "mint between 0 and 5000001");
@@ -105,6 +105,19 @@ contract CSOL is ERC20Capped, Ownable {
         resetVotes();
         emit TokenMintedInvestors(_receiver, _amount);
     }
+
+    //The remaining tokens will be for exchanges, which is 75 millions
+    //And each minting is limited to 1.000.000 tokens for extra security.
+    //By limiting to 1 million, the team will slowly distrubute tokens to exchanges
+    function mintExchanges(uint _amount, address _receiver) external onlyOwner {
+        require(positiveVotes >= managersArray.length/2, "Not enough votes by managers");
+        require(_amount > 0 && _amount < 1000001, "mint between 0 and 1000001");
+        require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
+        _mint(_receiver, _amount*(10**18));
+        resetVotes();
+        emit TokenMintedExchanges(_receiver, _amount);
+    }
+
 
     uint teamTokens = 0;
     //Tokens for the team should not exceed 5% of the cap, which is 5 millions. 
@@ -121,9 +134,22 @@ contract CSOL is ERC20Capped, Ownable {
         emit TokenMintedTeam(_receiver, _amount);
     }
 
+    //People who want to test the website will be able to do so by getting 2 tokens here.
+    function mintFree() external {
+        uint callerBalance = uint(balanceOf(msg.sender) / (10**18));
+        require(callerBalance < 2, "you already have more than 2 tokens");
+        _mint(msg.sender, 2*(10**18));
+        emit TokenMintedFree(msg.sender, 2);
+    }
 
+    //burn token function, open to anybody, decimals handled for easy frontend integration
+    function burnToken(uint _amount) external {
+        require(_amount > 0, "Enter an amount to burn");
+        require(uint(balanceOf(msg.sender)) > 0, "You dont tokens to burn");
+        _burn(msg.sender, _amount*(10**18));
+        emit TokenBurned(msg.sender, _amount);
+    }
 
 }
 
-//minting for investors and other important function will have a cooldown period.
 
