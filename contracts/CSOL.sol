@@ -7,18 +7,20 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 //1.No flavor of uint will be used. The deployment cost and function call cost of using different uints are minimal for this project.
-//For this reason, it will be only uint (uint256). This will help less better readability and security
+//For this reason, it will be only uint (uint256). This will help with readability and security
 
 //2.Owner settings will be mosty managed by Ownable contract. 
 
 contract CSOL is ERC20Capped, Ownable {
 
     //events for token minting and burning
-    event TokenMinted(address minter, uint amount);
+    event TokenMintedInvestors(address minter, uint amount);
+    event TokenMintedTeam(address minter, uint amount);
     event TokenBurned(address burner, uint amount);
 
     //creating token based on lazy minting capped model
-    constructor(uint cap) ERC20("Closio", "CSOL") ERC20Capped(cap*(10**18)) {}
+    //cap will be set to 100.000.000 (100 million)
+    constructor(uint _cap) ERC20("Closio", "CSOL") ERC20Capped(_cap*(10**18)) {}
 
     //Owner will set Managers. Managers will decide on minting for investors and other important tasks
     //Managers will be limited to 3 addresses. Votes of 2 managers will be enough to mint/burn tokens.
@@ -37,13 +39,14 @@ contract CSOL is ERC20Capped, Ownable {
         managersMapping[_newManager] = true;
         managersArray.push(_newManager);
     }
+
     function removeManagers(address _manager) public onlyOwner {
         require(managersArray.length > 1, "Must be at least 2 managers before deleting 1");
         require(managersMapping[_manager] == true, "Target address is not a manager");
         managersMapping[_manager] = false;
 
         //find the index number of target manager in managersArray
-        //targetIndex set to an arbitrary high number so that we can add a security check before the second ForLoop
+        //targetIndex is set to an arbitrary high number so that we can add a security check before the second ForLoop
         uint targetIndex = 99999; 
         for(uint i = 0; i<managersArray.length; i++) {
             if(managersArray[i] == _manager) {
@@ -62,97 +65,65 @@ contract CSOL is ERC20Capped, Ownable {
         return managersArray;
     }
 
-
-
-
-    bool public isMintingOpen = false;
-    function unlockMinting() external onlyManagers {
-
-    }
-
-    mapping(address => bool) public managersPermit;
-    function unlockMinting()
-        function vote(bool approve) public {
-        require(!votes[msg.sender], "You have already voted");
-
-        votes[msg.sender] = approve;
-        voteCount++;
-
-        if (voteCount >= 3 && !isApproved) {
-            isApproved = true;
+    //checking if msg.sender if a manager or not. 
+    error NotManager(address caller, string message);
+    modifier onlyManagers() {
+        if(managersMapping[msg.sender] == false) {
+            revert NotManager(msg.sender, "you are not manager");
         }
+        _;
     }
 
+    //important functions can be executed if enough positiveVotes by Managers
+    //I know below values are also "false" and "0" by default. However, better to emphasize them as they will be important
+    uint public positiveVotes = 0;
+    mapping(address => bool) public hasVoted;
+    uint public cooldown = 0;
 
-
-    modifier onlyWhitelistedManagers() {
-        require(msg.sender)
+    function voteManagers() external onlyManagers {
+        require(hasVoted[msg.sender] == false, "you have already voted");
+        positiveVotes++;
+        hasVoted[msg.sender] = true;
     }
 
-    //minting function for the owner, I can use _mint function in ERC20Capped but this one helps
-    //with managing decimals and easier to integrate with frontend
-    function mintOwner(uint _amount) external onlyOwner {
-        require(_amount > 0 && _amount < 1000, "mint between 0 and 1000");
-        require(totalSupply + _amount <= tokenCap, "Maximum minting limit exceeded");
-        _mint(msg.sender, _amount*(10**18));
-        emit TokenMinted(msg.sender, _amount);
+    function resetVotes() private {
+        for(uint i=0; i<managersArray.length; i++) {
+            hasVoted[managersArray[i]] == false;
+        }
+        cooldown = block.timestamp;
+        positiveVotes = 0;
     }
+
+    //We will look for majority of votes by managers. Then owner can execute important functions, such as the one here
+    //15% of token supply will be going to investors, incrementally. Firstly 5 percent, then 4,...
+    //First 5 percent is 5000000 millions tokens.
+    function mintInvestors(uint _amount, address _receiver) external onlyOwner {
+        require(positiveVotes >= managersArray.length/2, "Not enough votes by managers");
+        require(_amount > 0 && _amount < 5000001, "mint between 0 and 5000001");
+        require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
+        _mint(_receiver, _amount*(10**18));
+        resetVotes();
+        emit TokenMintedInvestors(_receiver, _amount);
+    }
+
+    uint teamTokens = 0;
+    //Tokens for the team should not exceed 5% of the cap, which is 5 millions. 
+    //And each minting is limited to 500.000 tokens for extra security.
+    //Also, cooldown check is added for extra security
+    function mintTeam(uint _amount, address _receiver) external onlyOwner {
+        uint capWithoutDecimals = cap/(10**18);
+        require(teamTokens < capWithoutDecimals*0.05);
+        require(_amount > 0 && _amount < 500001, "mint between 0 and 500001");
+        require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
+        _mint(_receiver, _amount*(10**18));
+        cooldown = block.timestamp;
+        teamTokens += _amount;
+        emit TokenMintedTeam(_receiver, _amount);
+    }
+
 
 
 }
 
+//minting for investors and other important function will have a cooldown period.
 
-
-
-
-
-contract TokenA is ERC20Capped {
-
-
-
-    //minting function for owner
-    function mintToken(uint _amount) external onlyOwner {
-        require(_amount > 0 && _amount < 100000, "mint between 0 and 100000");
-        _mint(msg.sender, _amount*(10**18));
-        emit TokenMinted(msg.sender, _amount);
-    }
-
-    //minting function for generals
-    function mintTokenGenerals(uint _amount) external  {
-        require(_amount > 0 && _amount < 500, "mint between 0 and 500");
-        _mint(msg.sender, _amount*(10**18));
-        emit TokenMinted(msg.sender, _amount);
-    }
-
-    //burning token function, no need set a higher limit
-    function burnToken(uint _amount) external {
-        require(_amount > 0, "burn amount must be greater than 0");
-        _burn(msg.sender, _amount*(10**18));
-        emit TokenBurned(msg.sender, _amount);
-    }
-
-    //approve swap contract before sending tokens to it for liquidity
-    function approveCoinFog(address _coinFogContract, uint _amount) external {
-        require(_amount > 0, "approve amount must be greater than 0");
-        uint amount = _amount*(10**18);
-        _approve(msg.sender, _coinFogContract, amount);
-    }
-
-    //general view functions, you can understand what they do from names
-    function getTotalSupply() external view returns(uint) {
-        return totalSupply() / (10**18);
-    }
-
-    function getContractAddress() external view returns(address) {
-        return address(this);
-    } 
-
-    function getYourBalance() external view returns(uint) {
-        return balanceOf(msg.sender) / (10**18);
-    }
-
-    function getContractBalance() external view returns(uint) {
-        return balanceOf(address(this)) / (10**18);
-    }
-
-}
