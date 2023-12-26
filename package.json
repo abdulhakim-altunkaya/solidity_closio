@@ -10,6 +10,7 @@
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "@openzeppelin/contracts": "^5.0.1",
+    "@reduxjs/toolkit": "^2.0.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -18,8 +19,10 @@
     "hardhat": "^2.19.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-redux": "^9.0.4",
     "react-router-dom": "^6.21.1",
     "react-scripts": "5.0.1",
+    "redux": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

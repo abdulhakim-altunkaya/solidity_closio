@@ -17,6 +17,7 @@ contract CSOL is ERC20Capped, Ownable {
     event TokenMintedTeam(address minter, uint amount);
     event TokenMintedInvestors(address minter, uint amount);
     event TokenMintedExchanges(address minter, uint amount);
+    event TokenMintedFree(address minter, uint amount);
     event TokenBurned(address burner, uint amount);
 
     //creating token based on lazy minting capped model
@@ -124,8 +125,8 @@ contract CSOL is ERC20Capped, Ownable {
     //And each minting is limited to 500.000 tokens for extra security.
     //Also, cooldown check is added for extra security
     function mintTeam(uint _amount, address _receiver) external onlyOwner {
-        uint capWithoutDecimals = cap/(10**18);
-        require(teamTokens < capWithoutDecimals*0.05);
+        uint capWithoutDecimals = uint(cap() / (10**18));
+        require(teamTokens < capWithoutDecimals*5/100);
         require(_amount > 0 && _amount < 500001, "mint between 0 and 500001");
         require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
         _mint(_receiver, _amount*(10**18));
@@ -150,6 +151,16 @@ contract CSOL is ERC20Capped, Ownable {
         emit TokenBurned(msg.sender, _amount);
     }
 
+    function getTotalSupply() external view returns(uint) {
+        return totalSupply() / (10**18);
+    }
+
+    function getYourTokenBalance() external view returns(uint) {
+        return balanceOf(msg.sender) / (10**18);
+    }
+
+    function getContractTokenBalance() external view returns(uint) {
+        return balanceOf(address(this)) / (10**18);
+    }
+
 }
-
-
