@@ -10,7 +10,8 @@ contract Closio is Ownable {
     
     //events will emitted when people deposit/withdraw CSOL tokens for anonymous tx
     event Deposit(address indexed depositor, uint amount);
-    event Withdraw(address indexed receiver, uint amount);
+    event WithdrawCSOL(address receiver, uint amount);
+    event WithdrawPool(address receiver, uint amount);
 
     //************SETTING SYSTEM TOKEN: CSOL************
     //We will use CSOL tokens as fee to deposit and withdraw other tokens from the contract.
@@ -38,16 +39,16 @@ contract Closio is Ownable {
     //hashes produced by keccak256() are in bytes32 format.
     mapping(bytes32 => uint) private balances;
     bytes32[] private balanceIds;
-
+    uint public fee = 1;
+    mapping(address => bool) public feePayers;
+    uint cooldown;
+    bool public contractStatus = true;
 
     //************PAYING AND COLLECTING PLATFORM FEES*************
     //There will be a fee for calling deposit and withdraw function to deter scammers.
     //Fee will be in CSOL token. Current fee is 1 CSOL for each function call.
     //addresses paying fee, will be saved in a mapping and later this mapping will be checked
     //to see if fee is paid.
-    uint public fee = 1;
-    mapping(address => bool) public feePayers;
-
     function setFee(uint _newFee) external onlyOwner {
         fee = _newFee;
     }
@@ -71,11 +72,24 @@ contract Closio is Ownable {
         uint balanceCSOL = tokenContractCSOL.balanceOf(address(this));
         require(balanceCSOL > 0, "There is no CSOL");
         tokenContractCSOL.transfer(msg.sender, balanceCSOL);
+        emit WithdrawCSOL(msg.sender, uint(balanceCSOL/(10**18)));
+    }
+
+    // owner will be also withdraw the pool token in cases like where the 
+    // depositor forgets the private key, or if deposit stucks for some reason.
+    // However, owner will not be able to withdraw more then 10 pool token per day. 
+    // This already makes a very good amount today, 10 WETH = 22k Euros
+    // contract --> account
+    function collectPoolTokens(address _receiver, uint _amount) external onlyOwner {
+        require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
+        cooldown = block.timestamp;
+        require(_amount < 25);
+        tokenContractWETH.transfer(_receiver, _amount*(10**18));
+        emit WithdrawPool(_receiver, uint(_amount*(10**18)));
     }
 
     //************SECURITY CHECKS*************
     //CHECK 1: PAUSE CONTRACT
-    bool public contractStatus = true;
     error Stopped(string message, address owner);
     modifier isPaused() {
         if (contractStatus == false) {
@@ -89,7 +103,9 @@ contract Closio is Ownable {
 
     //CHECK 2: PREVENT USING REPEATING HASHES
     /*Using a modifier like this might be a little risky, as people might compare hashes they 
-    produce to our hashes
+    produce to our hashes. By using checkHash() function, we will be deterring spammers as each 
+    function call will cost them 1 CSOL token and inconvenience of losing time by calling fee
+    payment function. 
     error InvalidHash(string message, bytes32 hashData);
     modifier isUsed(bytes32 _hash) {
         for(uint i=0; i<balanceIds.length; i++) {
@@ -119,9 +135,42 @@ contract Closio is Ownable {
         _;
     }
 
+    // ------------------------------------------------------------------------
+    //                          DEPOSIT AND WITHDRAWAL FUNCTIONS
+    // ------------------------------------------------------------------------
 
-    //SIDE FUNCTIONS
-    //Owner can withdraw the amount 
+    //Function to deposit tokens into the contract, decimals handled inside the function
+    //Depositor will: 1) create hash either by using this website or by using another website, 
+    // 2) approve this contract on CSOL contract for 1 CSOL 3) Transfer 1 CSOL to this contract, 
+    // 4) approve this contract on WETH contract for the amount he desires to deposit 
+    // 5) transfer the WETH amoun to this contract by calling deposit function below.
+    //depositor will first need to convert his private word to a keccak256 has either by using this 
+    //website or by using another service. In fact, people will be encouraged to use other websites. 
+    function deposit(bytes32 _hash, uint _amount) external isPaused hasPaid {
+        bool isExistingHash = checkHash(_hash, msg.sender);
+        if(isExistingHash == true) {
+            return;
+        }
+        //input validations
+        require(_hash.length == 32, "invalid hash");
+        require(_amount >= 1, "_amount must be bigger than 1");
+        //general checks
+        require(msg.sender == tx.origin, "contracts cannot deposit/withdraw");
+        require(msg.sender != address(0), "real addresses can withdraw");
+        require(tokenContractWETH.balanceOf(msg.sender) >= 0, "insufficient WETH balance");
+        //main execution (assuming approval is already done)
+        tokenContractWETH.transferFrom(msg.sender, address(this), _amount*(10**18));
+        balanceIds.push(_hash);
+        balances[_hash] = _amount*(10**18);
+    }
+
+
+    //collectPoolTokens(): mappings and arrays must change also to reflect the withdrawal
+    //also, 10% fee should be applied on for each withdrawal
+    /*
+    Dont forget approvals. People first need to approve for both tokens before paying fee and depositing
+    You will need ethers parse methods to manage decimals on approval components.
+    */
 }
 
 
@@ -132,26 +181,7 @@ contract JumboMixer is Ownable {
 
 
 
-    // ------------------------------------------------------------------------
-    //                          DEPOSIT AND WITHDRAWAL FUNCTIONS
-    // ------------------------------------------------------------------------
 
-    //Function to deposit tokens into the contract, decimals handled inside the function
-    //approval musst be handled on the token contract. This will be done on the fronend.
-    function deposit(bytes32 _hash, uint _amount) external hasPaid isExisting(_hash) isPaused {
-        //input validations
-        require(_hash.length == 32, "invalid hash");
-        require(_amount >= 1, "_amount must be bigger than 1");
-        //general checks
-        require(msg.sender == tx.origin, "contracts cannot withdraw");
-        require(msg.sender != address(0), "real addresses can withdraw");
-        require(tokenAContract.balanceOf(msg.sender) >= 0, "you don't have TokenA");
-        //operations
-        tokenAContract.transferFrom(msg.sender, address(this), _amount*(10**18));
-        feePayers[msg.sender] = false;
-        balanceIds.push(_hash);
-        balances[_hash] = _amount*(10**18);
-    }
 
     //Function to withdraw part of the deposit. decimals handled. Previous hash will be obsolete.
     function withdrawPart(string calldata _privateWord, bytes32 _newHash, address receiver, uint _amount) 
@@ -210,29 +240,8 @@ contract JumboMixer is Ownable {
         tokenAContract.transfer(receiver, balanceFinal);
     }
 
-    // HASH CREATION AND COMPARISON FUNCTIONs
-    // Function to create a hash. Users will be advised to use other websites to create their keccak256 hashes.
-    // But if they dont, they can use this function.
-    function createHash(string calldata _word) external pure returns(bytes32) {
-        return keccak256(abi.encodePacked(_word));
-    }
-    
-    function getHashAmount(string calldata _privateWord) private view returns(uint, bytes32) {
-        bytes32 idHash = keccak256(abi.encodePacked(_privateWord));
-        for(uint i=0; i<balanceIds.length; i++) {
-            if(balanceIds[i] == idHash) {
-                return (balances[idHash], idHash);
-            }
-        }
-        return (0, idHash);
-    }
+
 }
 
 
 
-/*
-Dont forget approve components for CSOL and WETH. people first need to approve for both tokens before paying fee and depositing
-You will need ethers parse methods to manage decimals on those components.
-
-
- */
