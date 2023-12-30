@@ -54,8 +54,9 @@ contract Closio is Ownable {
 
     // account ---> contract (token transfer)
     // As users will transfer ERC20 tokens from account to this contract, they will first need to approve this contract.
-    // Approval will be done on the frontend. Frontend will directly call erc20 method approve and it will ethers parse methods
-    // to manage decimals.
+    // Approval will be done on the frontend. Frontend will directly call erc20 method approve 
+    // frontend implementation: tokenContractCSOL.approve(spender, amount)
+    // and it will use ethers parse methods to manage decimals for amount parameter.
     function payFee() public {
         require(tokenContractCSOL.balanceOf(msg.sender) >= uint(fee*(10**18)), "You dont have CSOL");
         require(msg.sender == tx.origin, "Only accounts. Smart contract cannot pay fee");
@@ -86,6 +87,152 @@ contract Closio is Ownable {
         contractStatus != contractStatus;
     }
 
+    //CHECK 2: PREVENT USING REPEATING HASHES
+    /*Using a modifier like this might be a little risky, as people might compare hashes they 
+    produce to our hashes
+    error InvalidHash(string message, bytes32 hashData);
+    modifier isUsed(bytes32 _hash) {
+        for(uint i=0; i<balanceIds.length; i++) {
+            if(balanceIds[i] == _hash){
+                revert InvalidHash("Used hash", _hash);
+            }
+        }
+        _;
+    }
+    */
+    function checkHash(bytes32 _hash, address _caller) private view returns(bool) {
+        feePayers[_caller] = false;
+        for(uint i=0; i<balanceIds.length; i++) {
+            if(balanceIds[i] == _hash){
+                return true;
+            }
+        }
+        return false;
+    }
 
+    //CHECK 3: CHECK IF FEE IS PAID
+    error NotPaid(string message, address caller);
+    modifier hasPaid() {
+        if(feePayers[msg.sender] == false) {
+            revert NotPaid("You need to pay service fee", msg.sender);
+        }
+        _;
+    }
+
+
+    //SIDE FUNCTIONS
+    //Owner can withdraw the amount 
 }
 
+
+
+contract JumboMixer is Ownable {
+
+
+
+
+
+    // ------------------------------------------------------------------------
+    //                          DEPOSIT AND WITHDRAWAL FUNCTIONS
+    // ------------------------------------------------------------------------
+
+    //Function to deposit tokens into the contract, decimals handled inside the function
+    //approval musst be handled on the token contract. This will be done on the fronend.
+    function deposit(bytes32 _hash, uint _amount) external hasPaid isExisting(_hash) isPaused {
+        //input validations
+        require(_hash.length == 32, "invalid hash");
+        require(_amount >= 1, "_amount must be bigger than 1");
+        //general checks
+        require(msg.sender == tx.origin, "contracts cannot withdraw");
+        require(msg.sender != address(0), "real addresses can withdraw");
+        require(tokenAContract.balanceOf(msg.sender) >= 0, "you don't have TokenA");
+        //operations
+        tokenAContract.transferFrom(msg.sender, address(this), _amount*(10**18));
+        feePayers[msg.sender] = false;
+        balanceIds.push(_hash);
+        balances[_hash] = _amount*(10**18);
+    }
+
+    //Function to withdraw part of the deposit. decimals handled. Previous hash will be obsolete.
+    function withdrawPart(string calldata _privateWord, bytes32 _newHash, address receiver, uint _amount) 
+        external hasPaid isExisting(_newHash) isPaused
+    {
+        //input validations
+        require(bytes(_privateWord).length > 0, "private word is not enough long");
+        require(_newHash.length == 32, "invalid new hash");
+        require(receiver != address(0), "invalid receiver address");
+        require(bytes20(receiver) == bytes20(address(receiver)), "invalid receiver address");
+        require(_amount > 0, "_amount must be bigger than 0");
+
+        //general checks
+        require(msg.sender == tx.origin, "contracts cannot withdraw");
+        require(msg.sender != address(0), "real addresses can withdraw");
+
+        //withdrawing the desired amount
+        uint amount = _amount * (10**18);
+        (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
+        require(balanceFinal != 0, "No value for this hash");
+        require(balanceFinal > amount, "If you want to withdraw all choose withdrawAll function");
+        //old balance value for old hash will be set to 0.
+        balances[balanceHash] = 0;
+        tokenAContract.transfer(receiver, amount);
+
+        // Resetting service fee. Each fee is only for 1 function call
+        feePayers[msg.sender] = false;
+        //redepositing the amount left
+        uint amountLeft = balanceFinal - amount;
+        require(amountLeft >= 1, "amountLeft must be bigger than 1");
+        balanceIds.push(_newHash);
+        balances[_newHash] = amountLeft;
+    }
+
+    function withdrawAll(string calldata _privateWord, address receiver) 
+        external hasPaid isPaused
+    {
+        //input validations
+        require(bytes(_privateWord).length > 0, "private word is not enough long");
+        require(receiver != address(0), "invalid receiver address");
+        require(bytes20(receiver) == bytes20(address(receiver)), "invalid receiver address");
+
+        //general checks
+        require(msg.sender == tx.origin, "contracts cannot withdraw");
+        require(msg.sender != address(0), "real addresses can withdraw");
+
+        // Resetting service fee. Each fee is only for 1 function call
+        feePayers[msg.sender] = false;
+        // Get the balance and hash associated with the private word
+        (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
+        // Ensure the withdrawal amount is greater than 0
+        require(balanceFinal > 0, "Withdraw amount must be bigger than 0");
+        // Set the balance associated with the hash to 0
+        balances[balanceHash] = 0;
+        // Transfer the tokens to the receiver's address
+        tokenAContract.transfer(receiver, balanceFinal);
+    }
+
+    // HASH CREATION AND COMPARISON FUNCTIONs
+    // Function to create a hash. Users will be advised to use other websites to create their keccak256 hashes.
+    // But if they dont, they can use this function.
+    function createHash(string calldata _word) external pure returns(bytes32) {
+        return keccak256(abi.encodePacked(_word));
+    }
+    
+    function getHashAmount(string calldata _privateWord) private view returns(uint, bytes32) {
+        bytes32 idHash = keccak256(abi.encodePacked(_privateWord));
+        for(uint i=0; i<balanceIds.length; i++) {
+            if(balanceIds[i] == idHash) {
+                return (balances[idHash], idHash);
+            }
+        }
+        return (0, idHash);
+    }
+}
+
+
+
+/*
+Dont forget approve components for CSOL and WETH. people first need to approve for both tokens before paying fee and depositing
+You will need ethers parse methods to manage decimals on those components.
+
+
+ */
