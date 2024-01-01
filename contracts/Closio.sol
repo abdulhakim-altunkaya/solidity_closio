@@ -164,26 +164,94 @@ contract Closio is Ownable {
         balances[_hash] = _amount*(10**18);
     }
 
-
-    //collectPoolTokens(): mappings and arrays must change also to reflect the withdrawal
-    //also, 10% fee should be applied on for each withdrawal
-    /*
-    Dont forget approvals. People first need to approve for both tokens before paying fee and depositing
-    You will need ethers parse methods to manage decimals on approval components.
+    /* HASH CREATION AND COMPARISON FUNCTIONS
+    1)Function to create a hash. Users will be advised to use other websites to create their keccak256 hashes.
+    But if they dont, they can use this function.
+    2) As we dont need any specific type information of the private word("_word"), we dont need to use 
+    "abi.encode". We solely want the hash of our input and no type information with it. Thats why
+    it is "abi.encodePacked".
     */
+    function createHash(string calldata _privateWord) external view returns(bytes32) {
+        return keccak256(abi.encodePacked(_privateWord));
+    }
+    function getHashAmount(string calldata _privateWord) private view returns(uint, bytes32) {
+        bytes32 idHash = keccak256(abi.encodePacked(_privateWord));
+        for(uint i=0; i<balanceIds.length; i++) {
+            if(balanceIds[i] == idHash) {
+                return (balances[idHash], idHash);
+            }
+        }
+        return (0, idHash);
+    }
+
+    //REENTRANCY PROTECTION
+    // reentrancy protection only for withdraw functions. For depositing no need.
+    bool private reentrantBlock = false;
+    modifier isLocked() {
+        require(reentrantBlock == false, "Wait for your previous function call");
+        reentrantBlock = true;
+        _;
+        reentrantBlock = false;
+    }
+
+    function withdrawAll(string calldata _privateWord, address _receiver) external isLocked isPaused hasPaid returns(bool) {
+        //input validations
+        require(bytes(_privateWord).length > 0, "private word is not long enough");
+        require(_receiver != address(0), "invalid receiver address");
+        //ethereum addresses are 20 bytes long
+        require(bytes20(_receiver) == bytes20(address(_receiver)), "invalid receiver address");
+        
+        //general checks
+        require(msg.sender == tx.origin, "contracts cannot call this function");
+        require(msg.sender != address(0), "real addresses can withdraw");
+
+        //resetting service fee. Each function call will cost 
+        feePayers[msg.sender] = false;
+        //get the balance by using the hash as balance id
+        (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
+        if (balanceFinal == 0) {
+            return false;
+        } else {
+            // Set the balance associated with the hash to 0
+            balances[balanceHash] = 0;
+            //transfer the tokens to the receiver address
+            tokenContractWETH.transfer(_receiver, balanceFinal);
+            return true;
+        }
+
+    }
+
+
+
 }
 
 
-
 contract JumboMixer is Ownable {
+    function withdrawAll(string calldata _privateWord, address receiver) external hasPaid isPaused
+    {
+        //input validations
+        require(bytes(_privateWord).length > 0, "private word is not enough long");
+        require(receiver != address(0), "invalid receiver address");
+        require(bytes20(receiver) == bytes20(address(receiver)), "invalid receiver address");
+        //general checks
+        require(msg.sender == tx.origin, "contracts cannot withdraw");
+        require(msg.sender != address(0), "real addresses can withdraw");
+
+        // Resetting service fee. Each fee is only for 1 function call
+        feePayers[msg.sender] = false;
+        // Get the balance and hash associated with the private word
+        (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
+                // Ensure the withdrawal amount is greater than 0
+        require(balanceFinal > 0, "Withdraw amount must be bigger than 0");
+        // Set the balance associated with the hash to 0
+        balances[balanceHash] = 0;
+        // Transfer the tokens to the receiver's address
+        tokenAContract.transfer(receiver, balanceFinal);
+
+    }    
 
 
-
-
-
-
-
-    //Function to withdraw part of the deposit. decimals handled. Previous hash will be obsolete.
+        //Function to withdraw part of the deposit. decimals handled. Previous hash will be obsolete.
     function withdrawPart(string calldata _privateWord, bytes32 _newHash, address receiver, uint _amount) 
         external hasPaid isExisting(_newHash) isPaused
     {
@@ -216,32 +284,16 @@ contract JumboMixer is Ownable {
         balances[_newHash] = amountLeft;
     }
 
-    function withdrawAll(string calldata _privateWord, address receiver) 
-        external hasPaid isPaused
-    {
-        //input validations
-        require(bytes(_privateWord).length > 0, "private word is not enough long");
-        require(receiver != address(0), "invalid receiver address");
-        require(bytes20(receiver) == bytes20(address(receiver)), "invalid receiver address");
-
-        //general checks
-        require(msg.sender == tx.origin, "contracts cannot withdraw");
-        require(msg.sender != address(0), "real addresses can withdraw");
-
-        // Resetting service fee. Each fee is only for 1 function call
-        feePayers[msg.sender] = false;
-        // Get the balance and hash associated with the private word
-        (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
-        // Ensure the withdrawal amount is greater than 0
-        require(balanceFinal > 0, "Withdraw amount must be bigger than 0");
-        // Set the balance associated with the hash to 0
-        balances[balanceHash] = 0;
-        // Transfer the tokens to the receiver's address
-        tokenAContract.transfer(receiver, balanceFinal);
-    }
 
 
 }
 
 
 
+    //collectPoolTokens(): mappings and arrays must change also to reflect the withdrawal
+    //also, 10% fee should be applied on for each withdrawal
+    /*
+    Dont forget approvals. People first need to approve for both tokens before paying fee and depositing
+    You will need ethers parse methods to manage decimals on approval components.
+    */
+    
