@@ -194,17 +194,7 @@ contract Closio is Ownable {
         reentrantBlock = false;
     }
 
-    //instead of this function, I can put this line inside withdrawAll and withdrawPart 
-    //and it will work: feePayers[msg.sender] = false; 
-    //However, spammers will pay for service fee one time and call withdraw functions as much as they want.
-    //Because with each fail, spammer does not lose anything, he keeps his service fee. 
-    //Thats why I put this private function. This time, each function call will definetely cost service fee, even if
-    //function call fails.
-    //And no need to put any if statement or return "false" because all I want is to charge service fee.
-    function _payFee() private returns(bool) {
-        feePayers[msg.sender] = false;
-        return true;
-    }
+
 
     function withdrawAll(string calldata _privateWord, address receiver) external isLocked hasPaid isPaused {
         //input validations
@@ -215,10 +205,10 @@ contract Closio is Ownable {
         require(msg.sender == tx.origin, "contracts cannot withdraw");
         require(msg.sender != address(0), "real addresses can withdraw");
 
-        bool paymentDone = _payFee();
-
-        // Resetting service fee. Each fee is only for 1 function call
+        //Each time you call this function, it will cost service fee. This will help against spammers and hackers.
         feePayers[msg.sender] = false;
+
+        
         // Get the balance and hash associated with the private word
         (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
                 // Ensure the withdrawal amount is greater than 0
