@@ -5,6 +5,7 @@ pragma solidity >=0.8.7;
 //inheriting IERC20 interface to use "CSOL" token in closio functions
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Closio is Ownable {
     
@@ -196,7 +197,7 @@ contract Closio is Ownable {
 
 
 
-    function withdrawAll(string calldata _privateWord, address receiver) external isLocked hasPaid isPaused {
+    function withdrawAll(string calldata _privateWord, address receiver) external isLocked hasPaid isPaused returns(bool){
         //input validations
         require(bytes(_privateWord).length > 0, "private word is not enough long");
         require(receiver != address(0), "invalid receiver address");
@@ -207,18 +208,23 @@ contract Closio is Ownable {
 
         //Each time you call this function, it will cost service fee. This will help against spammers and hackers.
         feePayers[msg.sender] = false;
-
-        
-        // Get the balance and hash associated with the private word
+        //Get the balance and hash of the input private word
         (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
-                // Ensure the withdrawal amount is greater than 0
-        require(balanceFinal > 0, "Withdraw amount must be bigger than 0");
-        // Set the balance associated with the hash to 0
-        balances[balanceHash] = 0;
-        // Transfer the tokens to the receiver's address
-        tokenAContract.transfer(receiver, balanceFinal);
+        
+        //Instead of putting a require to check balanceFinal we will use if statement. By doing this we will make sure
+        //function execution does not fail if private word returns with zero balance. Because spammers will obviously try
+        //this if we put require. Each time require fails, they will continue keep their service fee and call this function
+        //again until they find a matching private key by chance. To prevent it we will use if instead. 
+        if(balanceFinal == 0) {
+            return false;
+        } else {
+            balances[balanceHash] = 0;
+            tokenContractWETH.transfer(receiver, balanceFinal);
+            return true;
+        }
+    } 
 
-    }  
+
 
     function withdrawAll(string calldata _privateWord, address _receiver) external isLocked isPaused hasPaid returns(bool) {
         //input validations
