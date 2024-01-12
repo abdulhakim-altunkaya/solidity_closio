@@ -5,9 +5,9 @@ pragma solidity >=0.8.7;
 //inheriting IERC20 interface to use "CSOL" token in closio functions
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract Closio is Ownable {
+contract Closio is Ownable, ReentrancyGuard {
     
     //events will emitted when people deposit/withdraw CSOL tokens for anonymous tx
     event Deposit(address indexed depositor, uint amount);
@@ -196,53 +196,26 @@ contract Closio is Ownable {
     }
 
 
-
-    function withdrawAll(string calldata _privateWord, address receiver) external isLocked hasPaid isPaused returns(bool){
-        //input validations
-        require(bytes(_privateWord).length > 0, "private word is not enough long");
-        require(receiver != address(0), "invalid receiver address");
-        require(bytes20(receiver) == bytes20(address(receiver)), "invalid receiver address");
-        //general checks
-        require(msg.sender == tx.origin, "contracts cannot withdraw");
-        require(msg.sender != address(0), "real addresses can withdraw");
-
-        //Each time you call this function, it will cost service fee. This will help against spammers and hackers.
-        feePayers[msg.sender] = false;
-        //Get the balance and hash of the input private word
-        (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
-        
-        //Instead of putting a require to check balanceFinal we will use if statement. By doing this we will make sure
-        //function execution does not fail if private word returns with zero balance. Because spammers will obviously try
-        //this if we put require. Each time require fails, they will continue keep their service fee and call this function
-        //again until they find a matching private key by chance. To prevent it we will use if instead. 
-        if(balanceFinal == 0) {
-            return false;
-        } else {
-            balances[balanceHash] = 0;
-            tokenContractWETH.transfer(receiver, balanceFinal);
-            return true;
-        }
-    } 
-
-
-
     function withdrawAll(string calldata _privateWord, address _receiver) external isLocked isPaused hasPaid returns(bool) {
-        //input validations
+        //Input validations
         require(bytes(_privateWord).length > 0, "private word is not long enough");
         require(_receiver != address(0), "invalid receiver address");
         //ethereum addresses are 20 bytes long
         require(bytes20(_receiver) == bytes20(address(_receiver)), "invalid receiver address");
         
-        //general checks
+        //msg.sender checks
         require(msg.sender == tx.origin, "contracts cannot call this function");
-        require(msg.sender != address(0), "real addresses can withdraw");
+        require(msg.sender != address(0), "real addresses can call withdraw");
 
-        //resetting service fee. Each function call will cost.
-
-        //resetting service fee. Each function call will cost 
+        //Resetting service fee. Each function call will cost 
         feePayers[msg.sender] = false;
-        //get the balance by using the hash as balance id
+        //Get the balance and hash of the input private word
         (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
+
+        //Instead of putting a Require to check balanceFinal we will use IF statement. By doing this we will make sure
+        //function execution does not fail if private word returns with zero balance. Because spammers will obviously try
+        //this if we put Require. Each time Require fails, they will continue keep their service fee and call this function
+        //again until they find a matching private key by chance. To prevent it we will use IF instead. 
         if (balanceFinal == 0) {
             return false;
         } else {
@@ -254,51 +227,47 @@ contract Closio is Ownable {
         }
 
     }
+    function withdrawPart(string calldata _privateWord, bytes32 _newHash, address receiver, uint _amount) 
+    external isLocked isPaused hasPaid isExistingHash(_newHash) returns(bool) 
+    {
+        //input validations
+        require(bytes(_privateWord).length > 0, "private word is not long enough");
+        require(_receiver != address(0), "invalid receiver address");
+        //ethereum addresses are 20 bytes long
+        require(bytes20(_receiver) == bytes20(address(_receiver)), "invalid receiver address");
+        //hashes are 32 length
+        require(_newHash.length == 32, "invalid new hash");
+        require(_amount > 0, "_amount must be bigger than 0");
 
+        //msg.sender checks
+        require(msg.sender == tx.origin, "contract cannot call this function");
+        require(msg.sender != address(0), "real addresses can call withdraw");
 
+        //resetting service fee. Each function call will cost
+        feePayers[msg.sender] = false;
+        //get the 
+    }
+
+    //--------------SECURITY 2: checking if new hash already exists
+    error ExistingHash(string message, bytes32 hashdata);
+    modifier isExistingHash(bytes32 _hash) {
+        for(uint i=0; i< balanceIds.length; i++) {
+            if(balanceIds[i] == _hash) {
+                revert ExistingHash("This hash exists", _hash);
+            }
+        }
+        _;
+    }
 
 }
 
 
 contract JumboMixer is Ownable {
-    function withdrawAll(string calldata _privateWord, address receiver) external hasPaid isPaused
-    {
-        //input validations
-        require(bytes(_privateWord).length > 0, "private word is not enough long");
-        require(receiver != address(0), "invalid receiver address");
-        require(bytes20(receiver) == bytes20(address(receiver)), "invalid receiver address");
-        //general checks
-        require(msg.sender == tx.origin, "contracts cannot withdraw");
-        require(msg.sender != address(0), "real addresses can withdraw");
-
-        // Resetting service fee. Each fee is only for 1 function call
-        feePayers[msg.sender] = false;
-        // Get the balance and hash associated with the private word
-        (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
-                // Ensure the withdrawal amount is greater than 0
-        require(balanceFinal > 0, "Withdraw amount must be bigger than 0");
-        // Set the balance associated with the hash to 0
-        balances[balanceHash] = 0;
-        // Transfer the tokens to the receiver's address
-        tokenAContract.transfer(receiver, balanceFinal);
-
-    }    
-
-
         //Function to withdraw part of the deposit. decimals handled. Previous hash will be obsolete.
     function withdrawPart(string calldata _privateWord, bytes32 _newHash, address receiver, uint _amount) 
         external hasPaid isExisting(_newHash) isPaused
     {
-        //input validations
-        require(bytes(_privateWord).length > 0, "private word is not enough long");
-        require(_newHash.length == 32, "invalid new hash");
-        require(receiver != address(0), "invalid receiver address");
-        require(bytes20(receiver) == bytes20(address(receiver)), "invalid receiver address");
-        require(_amount > 0, "_amount must be bigger than 0");
 
-        //general checks
-        require(msg.sender == tx.origin, "contracts cannot withdraw");
-        require(msg.sender != address(0), "real addresses can withdraw");
 
         //withdrawing the desired amount
         uint amount = _amount * (10**18);
