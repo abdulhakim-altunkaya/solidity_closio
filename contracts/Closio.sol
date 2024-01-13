@@ -105,22 +105,23 @@ contract Closio is Ownable, ReentrancyGuard {
     //CHECK 2: PREVENT USING REPEATING HASHES
     /*Using a modifier like this might be a little risky, as people might compare hashes they 
     produce to our hashes. By using checkHash() function, we will be deterring spammers as each 
-    function call will cost them 1 CSOL token and inconvenience of losing time by calling fee
-    payment function. 
-    error InvalidHash(string message, bytes32 hashData);
-    modifier isUsed(bytes32 _hash) {
-        for(uint i=0; i<balanceIds.length; i++) {
-            if(balanceIds[i] == _hash){
-                revert InvalidHash("Used hash", _hash);
+    function call will not fail if hashes does not match. Therefore they will charged 1 csol in any case.
+    Thats why I am using checkHash function instead of isExistingHash modifier.
+    error ExistingHash(string message, bytes32 hashdata);
+    modifier isExistingHash(bytes32 _hash) {
+        bytes32 _newHash = keccak256(abi.encodePacked(_hash, uint(1 ether)));
+        for(uint i=0; i< balanceIds.length; i++) {
+            if(balanceIds[i] == _newHash) {
+                revert ExistingHash("This hash exists", _hash);
             }
         }
         _;
     }
     */
-    function checkHash(bytes32 _hash, address _caller) private view returns(bool) {
-        feePayers[_caller] = false;
-        for(uint i=0; i<balanceIds.length; i++) {
-            if(balanceIds[i] == _hash){
+    function checkHash(bytes32 _hash) private view returns(bool) {
+        bytes32 _newHash = keccak256(abi.encodePacked(_hash, uint(1 ether)));
+        for(uint i=0; i< balanceIds.length; i++) {
+            if(balanceIds[i] == _newHash) {
                 return true;
             }
         }
@@ -148,7 +149,8 @@ contract Closio is Ownable, ReentrancyGuard {
     //depositor will first need to convert his private word to a keccak256 has either by using this 
     //website or by using another service. In fact, people will be encouraged to use other websites. 
     function deposit(bytes32 _hash, uint _amount) external isPaused hasPaid {
-        bool isExistingHash = checkHash(_hash, msg.sender);
+        bool isExistingHash = checkHash(_hash, msg.sender);//FIX THIS LINE AND RESET PAYMENT
+        bytes32 _newHash = keccak256(abi.encodePacked(_hash, uint(1 ether)));
         if(isExistingHash == true) {
             return;
         }
@@ -161,8 +163,8 @@ contract Closio is Ownable, ReentrancyGuard {
         require(tokenContractWETH.balanceOf(msg.sender) >= 0, "insufficient WETH balance");
         //main execution (assuming approval is already done)
         tokenContractWETH.transferFrom(msg.sender, address(this), _amount*(10**18));
-        balanceIds.push(_hash);
-        balances[_hash] = _amount*(10**18);
+        balanceIds.push(_newHash);
+        balances[_newHash] = _amount*(10**18);
     }
 
     /* HASH CREATION AND COMPARISON FUNCTIONS
@@ -172,11 +174,15 @@ contract Closio is Ownable, ReentrancyGuard {
     "abi.encode". We solely want the hash of our input and no type information with it. Thats why
     it is "abi.encodePacked".
     */
-    function createHash(string calldata _privateWord) external view returns(bytes32) {
+    function createHash(string calldata _privateWord) external pure returns(bytes32) {
         return keccak256(abi.encodePacked(_privateWord));
     }
+    function createHashSalty(string calldata _privateWord) external pure returns(bytes32) {
+        return keccak256(abi.encodePacked(_privateWord, uint(1 ether)));
+    }
     function getHashAmount(string calldata _privateWord) private view returns(uint, bytes32) {
-        bytes32 idHash = keccak256(abi.encodePacked(_privateWord));
+        bytes32 idHash_1 = keccak256(abi.encodePacked(_privateWord));
+        bytes32 idHash = keccak256(abi.encodePacked(idHash_1, uint(1 ether)));
         for(uint i=0; i<balanceIds.length; i++) {
             if(balanceIds[i] == idHash) {
                 return (balances[idHash], idHash);
@@ -227,70 +233,64 @@ contract Closio is Ownable, ReentrancyGuard {
         }
 
     }
-    function withdrawPart(string calldata _privateWord, bytes32 _newHash, address receiver, uint _amount) 
-    external isLocked isPaused hasPaid isExistingHash(_newHash) returns(bool) 
+    function withdrawPart(string calldata _privateWord, bytes32 _newHash, address _receiver, uint _amount) 
+    external isLocked isPaused hasPaid returns(string memory) 
     {
-        //input validations
+        //----VALIDATIONS
+        //Validations Input: private word length
         require(bytes(_privateWord).length > 0, "private word is not long enough");
+        //Validations Input: receiver address if valid
         require(_receiver != address(0), "invalid receiver address");
-        //ethereum addresses are 20 bytes long
+        //Validations Input: receiver address length
         require(bytes20(_receiver) == bytes20(address(_receiver)), "invalid receiver address");
-        //hashes are 32 length
+        //Validations Input: new hash length
         require(_newHash.length == 32, "invalid new hash");
+        //Validations Input: amount if valid
         require(_amount > 0, "_amount must be bigger than 0");
-
-        //msg.sender checks
+        //Validations msg.sender
         require(msg.sender == tx.origin, "contract cannot call this function");
         require(msg.sender != address(0), "real addresses can call withdraw");
 
+        //----RESETTING SERVICE FEE
         //resetting service fee. Each function call will cost
         feePayers[msg.sender] = false;
-        //get the 
-    }
-
-    //--------------SECURITY 2: checking if new hash already exists
-    error ExistingHash(string message, bytes32 hashdata);
-    modifier isExistingHash(bytes32 _hash) {
-        for(uint i=0; i< balanceIds.length; i++) {
-            if(balanceIds[i] == _hash) {
-                revert ExistingHash("This hash exists", _hash);
-            }
+        //Validations Input: new hash if repeating. The reason why this line is under fee resetting is to 
+        //deter spammers from checking if they can guess hashes.
+        bool isExisting = checkHash(_newHash);
+        if(isExisting == true) {
+            return "balance is zero";
         }
-        _;
-    }
+        //I know error is repeating hash above but it means spammer found an existing hash.
+        //This shouldnt happen unless they crack keccak256 with quantum computers or private word of someone 
+        //is something easily guessable.  
+        //So, to confuse the spammer, I am returning the same string as below so that he will not know.
 
-}
-
-
-contract JumboMixer is Ownable {
-        //Function to withdraw part of the deposit. decimals handled. Previous hash will be obsolete.
-    function withdrawPart(string calldata _privateWord, bytes32 _newHash, address receiver, uint _amount) 
-        external hasPaid isExisting(_newHash) isPaused
-    {
-
-
-        //withdrawing the desired amount
-        uint amount = _amount * (10**18);
+        //-----GETTING BALANCE OF THE HASH
         (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
-        require(balanceFinal != 0, "No value for this hash");
-        require(balanceFinal > amount, "If you want to withdraw all choose withdrawAll function");
-        //old balance value for old hash will be set to 0.
+        uint amount = _amount * (10**18);
+        if (balanceFinal == 0) {
+            return "balance is zero";
+        }
+        if(amount > balanceFinal) {
+            return "withdrawal amount is bigger than balance";
+        }
+        // Set the balance associated with the hash to 0
         balances[balanceHash] = 0;
-        tokenAContract.transfer(receiver, amount);
+        //transfer the tokens to the receiver address
+        tokenContractWETH.transfer(_receiver, amount);
 
-        // Resetting service fee. Each fee is only for 1 function call
-        feePayers[msg.sender] = false;
         //redepositing the amount left
         uint amountLeft = balanceFinal - amount;
-        require(amountLeft >= 1, "amountLeft must be bigger than 1");
+        if(amountLeft < 1) {
+            return "amount left must be bigger than 1";
+        }
+        bytes32 newHash = keccak256(abi.encodePacked(_newHash, uint(1 ether)));
+        balances[newHash] = amountLeft;
         balanceIds.push(_newHash);
-        balances[_newHash] = amountLeft;
+        return "part withdrawal and redepositing left amount complete";
     }
 
-
-
 }
-
 
 
     //collectPoolTokens(): mappings and arrays must change also to reflect the withdrawal
