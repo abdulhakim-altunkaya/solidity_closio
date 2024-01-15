@@ -45,6 +45,10 @@ contract Closio is Ownable, ReentrancyGuard {
     uint cooldown;
     bool public contractStatus = true;
 
+    constructor() {
+        cooldown = block.timestamp;
+    }
+
     //************PAYING AND COLLECTING PLATFORM FEES*************
     //There will be a fee for calling deposit and withdraw function to deter scammers.
     //Fee will be in CSOL token. Current fee is 1 CSOL for each function call.
@@ -103,9 +107,9 @@ contract Closio is Ownable, ReentrancyGuard {
     }
 
     //CHECK 2: PREVENT USING REPEATING HASHES
-    /*Using a modifier like this might be a little risky, as people might compare hashes they 
-    produce to our hashes. By using checkHash() function, we will be deterring spammers as each 
-    function call will not fail if hashes does not match. Therefore they will charged 1 csol in any case.
+    /*Using a modifier like this might be a little risky, as people might compare hashes to crack private
+    words of our hashes. By using checkHash() function, we will be deterring spammers as each 
+    function call will not fail if hashes does not match. Therefore they will be charged 1 csol in any case.
     Thats why I am using checkHash function instead of isExistingHash modifier.
     error ExistingHash(string message, bytes32 hashdata);
     modifier isExistingHash(bytes32 _hash) {
@@ -137,35 +141,6 @@ contract Closio is Ownable, ReentrancyGuard {
         _;
     }
 
-    // ------------------------------------------------------------------------
-    //                          DEPOSIT AND WITHDRAWAL FUNCTIONS
-    // ------------------------------------------------------------------------
-
-    //Function to deposit tokens into the contract, decimals handled inside the function
-    //Depositor will: 1) create hash either by using this website or by using another website, 
-    // 2) approve this contract on CSOL contract for 1 CSOL 3) Transfer 1 CSOL to this contract, 
-    // 4) approve this contract on WETH contract for the amount he desires to deposit 
-    // 5) transfer the WETH amoun to this contract by calling deposit function below.
-    //depositor will first need to convert his private word to a keccak256 has either by using this 
-    //website or by using another service. In fact, people will be encouraged to use other websites. 
-    function deposit(bytes32 _hash, uint _amount) external isPaused hasPaid {
-        bool isExistingHash = checkHash(_hash, msg.sender);//FIX THIS LINE AND RESET PAYMENT
-        bytes32 _newHash = keccak256(abi.encodePacked(_hash, uint(1 ether)));
-        if(isExistingHash == true) {
-            return;
-        }
-        //input validations
-        require(_hash.length == 32, "invalid hash");
-        require(_amount >= 1, "_amount must be bigger than 1");
-        //general checks
-        require(msg.sender == tx.origin, "contracts cannot deposit/withdraw");
-        require(msg.sender != address(0), "real addresses can withdraw");
-        require(tokenContractWETH.balanceOf(msg.sender) >= 0, "insufficient WETH balance");
-        //main execution (assuming approval is already done)
-        tokenContractWETH.transferFrom(msg.sender, address(this), _amount*(10**18));
-        balanceIds.push(_newHash);
-        balances[_newHash] = _amount*(10**18);
-    }
 
     /* HASH CREATION AND COMPARISON FUNCTIONS
     1)Function to create a hash. Users will be advised to use other websites to create their keccak256 hashes.
@@ -191,22 +166,57 @@ contract Closio is Ownable, ReentrancyGuard {
         return (0, idHash);
     }
 
-    //REENTRANCY PROTECTION
-    // reentrancy protection only for withdraw functions. For depositing no need.
-    bool private reentrantBlock = false;
-    modifier isLocked() {
-        require(reentrantBlock == false, "Wait for your previous function call");
-        reentrantBlock = true;
-        _;
-        reentrantBlock = false;
+
+    // ------------------------------------------------------------------------
+    //                          DEPOSIT AND WITHDRAWAL FUNCTIONS
+    // ------------------------------------------------------------------------
+
+    //Function to deposit tokens into the contract, decimals handled inside the function
+    //Depositor will: 1) create hash either by using this website or by using another website, 
+    // 2) approve this contract on CSOL contract for 1 CSOL 3) Transfer 1 CSOL to this contract, 
+    // 4) approve this contract on WETH contract for the amount he desires to deposit 
+    // 5) transfer the WETH amoun to this contract by calling deposit function below.
+    //depositor will first need to convert his private word to a keccak256 has either by using this 
+    //website or by using another service. In fact, people will be encouraged to use other websites. 
+    function deposit(bytes32 _hash, uint _amount) external isPaused hasPaid nonReentrant returns(string memory) {
+        //VALIDATIONS
+        //Validations Input: amount if valid
+        require(_amount > 0, "_amount must be bigger than 0");
+        //Validations Input: new hash length
+        require(_hash.length == 32, "invalid new hash");
+        //Validations msg.sender
+        require(msg.sender == tx.origin, "contract cannot call this function");
+        require(msg.sender != address(0), "real addresses can call withdraw");
+
+        //----RESETTING SERVICE FEE
+        //resetting service fee. Each function call will cost
+        feePayers[msg.sender] = false;
+        //Validations Input: new hash if repeating. The reason why this line is under fee resetting is to 
+        //deter spammers from checking if they can guess hashes.
+        bool isExisting = checkHash(_hash);
+        if(isExisting == true) {
+            return "insufficient WETH Balance";
+        }
+        //I know error is repeating hash above but it means spammer found an existing hash.
+        //This shouldnt happen unless they crack keccak256 with quantum computers or private word of someone 
+        //is something easily guessable. I am throwing same return message to confuse the spammer.
+        bytes32 _newHash = keccak256(abi.encodePacked(_hash, uint(1 ether)));
+        uint amount = _amount * (10**18);
+
+        //main execution (assuming approval is already done)
+        tokenContractWETH.transferFrom(msg.sender, address(this), amount);
+        balanceIds.push(_newHash);
+        balances[_newHash] = amount;
+        return "success";
     }
 
-
-    function withdrawAll(string calldata _privateWord, address _receiver) external isLocked isPaused hasPaid returns(bool) {
-        //Input validations
+    function withdrawAll(string calldata _privateWord, address _receiver) external nonReentrant isPaused hasPaid returns(string memory) {
+        //----VALIDATIONS
+        //Validations Input: private word length
         require(bytes(_privateWord).length > 0, "private word is not long enough");
+        //Validations Input: receiver address if valid
         require(_receiver != address(0), "invalid receiver address");
-        //ethereum addresses are 20 bytes long
+        //Validations Input: receiver address length
         require(bytes20(_receiver) == bytes20(address(_receiver)), "invalid receiver address");
         
         //msg.sender checks
@@ -223,18 +233,17 @@ contract Closio is Ownable, ReentrancyGuard {
         //this if we put Require. Each time Require fails, they will continue keep their service fee and call this function
         //again until they find a matching private key by chance. To prevent it we will use IF instead. 
         if (balanceFinal == 0) {
-            return false;
-        } else {
-            // Set the balance associated with the hash to 0
-            balances[balanceHash] = 0;
-            //transfer the tokens to the receiver address
-            tokenContractWETH.transfer(_receiver, balanceFinal);
-            return true;
+            return "balance is 0";
         }
-
+        // Set the balance associated with the hash to 0
+        balances[balanceHash] = 0;
+        //transfer the tokens to the receiver address
+        tokenContractWETH.transfer(_receiver, balanceFinal);
+        return "success";
     }
+
     function withdrawPart(string calldata _privateWord, bytes32 _newHash, address _receiver, uint _amount) 
-    external isLocked isPaused hasPaid returns(string memory) 
+    external nonReentrant isPaused hasPaid returns(string memory) 
     {
         //----VALIDATIONS
         //Validations Input: private word length
@@ -286,17 +295,22 @@ contract Closio is Ownable, ReentrancyGuard {
         }
         bytes32 newHash = keccak256(abi.encodePacked(_newHash, uint(1 ether)));
         balances[newHash] = amountLeft;
-        balanceIds.push(_newHash);
-        return "part withdrawal and redepositing left amount complete";
+        balanceIds.push(newHash);
+        return "success";
     }
 
 }
 
 
-    //collectPoolTokens(): mappings and arrays must change also to reflect the withdrawal
-    //also, 10% fee should be applied on for each withdrawal
+    //collectPoolTokens(): mappings and arrays must change also to reflect the withdrawals
     /*
     Dont forget approvals. People first need to approve for both tokens before paying fee and depositing
     You will need ethers parse methods to manage decimals on approval components.
+
+    Add balance checks on the frontend: "        uint WETHBalance = tokenContractWETH.balanceOf(msg.sender);
+        if (WETHBalance == 0) {
+            return "insufficient WETH Balance";
+        }"
+        
     */
     
