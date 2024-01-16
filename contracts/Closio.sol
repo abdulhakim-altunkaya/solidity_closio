@@ -82,13 +82,13 @@ contract Closio is Ownable, ReentrancyGuard {
 
     // owner will be also withdraw the pool token in cases like where the 
     // depositor forgets the private key, or if deposit stucks for some reason.
-    // However, owner will not be able to withdraw more then 10 pool token per day. 
+    // However, owner will not be able to withdraw more then 10 WETH per day. 
     // This already makes a very good amount today, 10 WETH = 22k Euros
     // contract --> account
     function collectPoolTokens(address _receiver, uint _amount) external onlyOwner {
         require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
         cooldown = block.timestamp;
-        require(_amount < 25);
+        require(_amount < 11);
         tokenContractWETH.transfer(_receiver, _amount*(10**18));
         emit WithdrawPool(_receiver, uint(_amount*(10**18)));
     }
