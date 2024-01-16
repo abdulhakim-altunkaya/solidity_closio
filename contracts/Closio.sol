@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 contract Closio is Ownable, ReentrancyGuard {
     
     //events will emitted when people deposit/withdraw CSOL tokens for anonymous tx
-    event Deposit(address indexed depositor, uint amount);
+    event Deposit(address depositor, uint amount);
     event WithdrawCSOL(address receiver, uint amount);
     event WithdrawPool(address receiver, uint amount);
 
@@ -42,12 +42,8 @@ contract Closio is Ownable, ReentrancyGuard {
     bytes32[] private balanceIds;
     uint public fee = 1;
     mapping(address => bool) public feePayers;
-    uint cooldown;
+    uint private cooldown = 1;//a small random value just to initiate the cooldown
     bool public contractStatus = true;
-
-    constructor() {
-        cooldown = block.timestamp;
-    }
 
     //************PAYING AND COLLECTING PLATFORM FEES*************
     //There will be a fee for calling deposit and withdraw function to deter scammers.
@@ -103,7 +99,7 @@ contract Closio is Ownable, ReentrancyGuard {
         _;
     }
     function togglePause() external onlyOwner {
-        contractStatus != contractStatus;
+        contractStatus = !contractStatus;
     }
 
     //CHECK 2: PREVENT USING REPEATING HASHES
@@ -298,6 +294,9 @@ contract Closio is Ownable, ReentrancyGuard {
         balanceIds.push(newHash);
         return "success";
     }
+
+    receive() external payable {}
+    fallback() external payable {}
 
 }
 

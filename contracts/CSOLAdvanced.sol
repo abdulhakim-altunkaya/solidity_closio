@@ -102,6 +102,7 @@ contract CSOL is ERC20Capped, Ownable {
         require(positiveVotes >= managersArray.length/2, "Not enough votes by managers");
         require(_amount > 0 && _amount < 5000001, "mint between 0 and 5000001");
         require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
+        cooldown = block.timestamp;
         _mint(_receiver, _amount*(10**18));
         resetVotes();
         emit TokenMintedInvestors(_receiver, _amount);
@@ -114,6 +115,7 @@ contract CSOL is ERC20Capped, Ownable {
         require(positiveVotes >= managersArray.length/2, "Not enough votes by managers");
         require(_amount > 0 && _amount < 1000001, "mint between 0 and 1000001");
         require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
+        cooldown = block.timestamp;
         _mint(_receiver, _amount*(10**18));
         resetVotes();
         emit TokenMintedExchanges(_receiver, _amount);
@@ -134,7 +136,7 @@ contract CSOL is ERC20Capped, Ownable {
         teamTokens += _amount;
         emit TokenMintedTeam(_receiver, _amount);
     }
-
+ 
     //People who want to test the website will be able to do so by getting 2 tokens here.
     function mintFree() external {
         uint callerBalance = uint(balanceOf(msg.sender) / (10**18));
