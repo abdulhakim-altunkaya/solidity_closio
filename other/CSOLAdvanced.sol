@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: MIT
 
-pragma solidity >= 0.8.7;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 //2.Owner settings will be mosty managed by Ownable contract. 
 
-contract CSOL is ERC20Capped, Ownable {
+contract CSOLAdvanced is ERC20Capped, Ownable {
 
     //events for token minting and burning
     event TokenMintedTeam(address minter, uint amount);

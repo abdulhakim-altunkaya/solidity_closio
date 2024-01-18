@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: MIT
 
-pragma solidity >=0.8.7;
+pragma solidity ^0.8.20;
 
 //inheriting IERC20 interface to use "CSOL" token in closio functions
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -8,6 +8,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract Closio is Ownable, ReentrancyGuard {
+
+    constructor() {
+        //This constructor is only to overcome setting initial owner error while compiling.
+        //I think it is related to BNB Blockchain. Other chains work fine as far as I know.
+        transferOwnership(msg.sender);
+    }
     
     //events will emitted when people deposit/withdraw CSOL tokens for anonymous tx
     event Deposit(address depositor, uint amount);
