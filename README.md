@@ -78,3 +78,8 @@ Explore additional partnerships and scaling opportunities.
 Sustainability:
 
 Develop strategies to sustain and grow your project beyond the initial launch.
+
+
+<a href="https://www.flaticon.com/free-icons/letter-c" title="letter c icons">Letter c icons created by NajmunNahar - Flaticon</a>
+
+<a href="https://www.flaticon.com/free-icons/letter-c" title="letter c icons">Letter c icons created by popo2021 - Flaticon</a>

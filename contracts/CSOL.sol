@@ -20,8 +20,7 @@ contract CSOL is ERC20Capped, Ownable {
 
     //creating token based on lazy minting capped model
     //cap will be set to 100.000.000 (100 million)
-    constructor(uint _cap) ERC20("Closio", "CSOL") ERC20Capped(_cap*(10**18)) {
-        transferOwnership(msg.sender);
+    constructor(uint _cap) ERC20("Closio", "CSOL") ERC20Capped(_cap*(10**18)) Ownable(msg.sender) {
     }
     
     uint public cooldown = 1;//random value to initiate cooldown. Actual value will come later once we call important function. 

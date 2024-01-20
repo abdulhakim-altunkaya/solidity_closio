@@ -9,10 +9,9 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract Closio is Ownable, ReentrancyGuard {
 
-    constructor() {
+    constructor() Ownable(msg.sender) {
         //This constructor is only to overcome setting initial owner error while compiling.
         //I think it is related to BNB Blockchain. Other chains work fine as far as I know.
-        transferOwnership(msg.sender);
     }
     
     //events will emitted when people deposit/withdraw CSOL tokens for anonymous tx
