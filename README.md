@@ -80,6 +80,6 @@ Sustainability:
 Develop strategies to sustain and grow your project beyond the initial launch.
 
 
-<a href="https://www.flaticon.com/free-icons/letter-c" title="letter c icons">Letter c icons created by NajmunNahar - Flaticon</a>
+Image by <a href="https://www.freepik.com/free-vector/gradient-wavy-dynamic-background_18954428.htm">Freepik</a>
 
 <a href="https://www.flaticon.com/free-icons/letter-c" title="letter c icons">Letter c icons created by popo2021 - Flaticon</a>

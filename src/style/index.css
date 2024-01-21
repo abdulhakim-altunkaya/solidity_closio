@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap'); /*Oswald*/
+
+body {
+  margin: 0;
+  font-family: "Quicksand", 'Trebuchet MS';
+  background-image: url("../../public/background2.jpg");
+  background-size: 100%;
+}
