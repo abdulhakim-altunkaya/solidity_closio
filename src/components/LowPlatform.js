@@ -1,9 +1,12 @@
-import React from 'react'
+import React from 'react';
+import Platform from "./mixingOps/Platform";
 
 function LowPlatform() {
   return (
-    <div>LowPlatform</div>
+    <div>
+      <Platform />
+    </div>
   )
 }
 
-export default LowPlatform
+export default LowPlatform;
