@@ -1,9 +1,14 @@
-import React from 'react'
+import React from 'react';
+import CsolToken from "./CsolToken";
+import Owner from "../ownerOps/Owner";
 
 function TokenWrite() {
   return (
-    <div>TokenWrite</div>
+    <div className='tokenWriteDiv'>
+      <CsolToken />
+      <Owner />
+    </div>
   )
 }
 
-export default TokenWrite
+export default TokenWrite;
