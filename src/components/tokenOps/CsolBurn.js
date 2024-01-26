@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react';
+import { useAccount } from '../../Store';
 
 function CsolBurn() {
   return (
@@ -6,4 +7,5 @@ function CsolBurn() {
   )
 }
 
-export default CsolBurn
+export default CsolBurn;
+

@@ -19,13 +19,13 @@ contract CSOL is ERC20Capped, Ownable {
     event TokenBurned(address burner, uint amount);
 
     //creating token based on lazy minting capped model
-    //cap will be set to 100.000.000 (100 million)
+    //cap will be set to 1.000.000.000 (1 billion)
     constructor(uint _cap) ERC20("Closio", "CSOL") ERC20Capped(_cap*(10**18)) Ownable(msg.sender) {
     }
     
     uint public cooldown = 1;//random value to initiate cooldown. Actual value will come later once we call important function. 
 
-    //15 millions tokens will be for investors
+    //50 millions tokens will be for early investors
     //Each minting will be limited to 5 millions for extra security
     function mintInvestors(uint _amount, address _receiver) external onlyOwner {
         require(_amount > 0 && _amount < 5000001, "mint between 0 and 5000001");
@@ -35,7 +35,7 @@ contract CSOL is ERC20Capped, Ownable {
         emit TokenMintedInvestors(_receiver, _amount);
     }
 
-    //The remaining tokens will be for exchanges, which is 75 millions
+    //200 million tokens will be for exchanges 
     //And each minting is limited to 1.000.000 tokens for extra security.
     //By limiting to 1 million, the team will slowly distrubute tokens to exchanges
     function mintExchanges(uint _amount, address _receiver) external onlyOwner {
@@ -48,7 +48,7 @@ contract CSOL is ERC20Capped, Ownable {
 
 
     uint teamTokens = 0;
-    //Tokens for the team should not exceed 5% of the cap, which is 5 millions. 
+    //Tokens for the team should not exceed 5% of the cap, which is 50 millions. 
     //And each minting is limited to 500.000 tokens for extra security.
     //Also, cooldown check is added for extra security
     function mintTeam(uint _amount, address _receiver) external onlyOwner {
@@ -63,17 +63,19 @@ contract CSOL is ERC20Capped, Ownable {
     }
  
     uint private cooldownFree = 1;
+
     bool public freeMinting = true;
     function toggleFree() external onlyOwner {
         freeMinting = !freeMinting;
     }
     //People who want to test the website will be able to do so by getting 2 tokens here.
-    function mintFree() external {
+    function mintFree() external returns(bool) {
         require(freeMinting == true, "free minting disabled by owner");
-        require(block.timestamp > cooldownFree + 1 hours, "Free minting is after 1 hour");
+        require(block.timestamp > cooldownFree + 5 minutes, "Free minting is after 5 minutes");
         cooldownFree = block.timestamp;
         _mint(msg.sender, 2*(10**18));
         emit TokenMintedFree(msg.sender, 2);
+        return true;
     }
 
     //burn token function, open to anybody, decimals handled for easy frontend integration
