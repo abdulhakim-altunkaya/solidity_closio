@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
-import OwnerCSOLmintExc from "./OwnerCSOLmintExc";
-import OwnerCSOLmintInv from "./OwnerCSOLmintInv";
-import OwnerCSOLmintTeam from "./OwnerCSOLmintTeam";
-import OwnerCSOLtoggleFree from "./OwnerCSOLtoggleFree";
-import OwnerCSOLchange from "./OwnerCSOLchange";
+import OwnCSOLmintExc from "./OwnerCSOLmintExc";
+import OwnCSOLmintInv from "./OwnerCSOLmintInv";
+import OwnCSOLmintTeam from "./OwnerCSOLmintTeam";
+import OwnCSOLmintTre from "./OwnCSOLmintTre";
+import OwnCSOLtoggleFree from "./OwnerCSOLtoggleFree";
+import OwnCSOLchange from "./OwnerCSOLchange";
 import { AddressOwner } from "../addressABI/AddressOwner";
 //fetch user account from redux storage. User account will be saved to Redux storage if user 
 //login with metamask on homepage (RConnectMet component in tokenOps).
@@ -30,11 +31,12 @@ function Owner() {
       <button className='button9' id='btnRed' onClick={toggleDisplay}>Owner Operations</button>
       {displayStatus === true ?
         <>
-          <OwnerCSOLmintExc />
-          <OwnerCSOLmintInv />
-          <OwnerCSOLmintTeam />
-          <OwnerCSOLtoggleFree />
-          <OwnerCSOLchange />
+          <OwnCSOLmintExc />
+          <OwnCSOLmintInv />
+          <OwnCSOLmintTeam />
+          <OwnCSOLmintTre />
+          <OwnCSOLtoggleFree />
+          <OwnCSOLchange />
         </>
         :
         <></>

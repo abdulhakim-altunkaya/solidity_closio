@@ -102,7 +102,7 @@ contract CSOL is ERC20Capped, Ownable {
         require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
         _mint(_receiver, _amount*(10**18));
         treasuryTokens += _amount;
-        emit TokenMintedTeam(_receiver, _amount);
+        emit TokenMintedTreasury(_receiver, _amount);
     }
 
     //*******SIDE FUNCTIONS*******
