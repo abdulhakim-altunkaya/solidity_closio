@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import OwnCSOLmintExc from "./OwnerCSOLmintExc";
-import OwnCSOLmintInv from "./OwnerCSOLmintInv";
-import OwnCSOLmintTeam from "./OwnerCSOLmintTeam";
+import OwnCSOLmintExc from "./OwnCSOLmintExc";
+import OwnCSOLmintInv from "./OwnCSOLmintInv";
+import OwnCSOLmintTeam from "./OwnCSOLmintTeam";
 import OwnCSOLmintTre from "./OwnCSOLmintTre";
-import OwnCSOLtoggleFree from "./OwnerCSOLtoggleFree";
-import OwnCSOLchange from "./OwnerCSOLchange";
+import OwnCSOLtoggleFree from "./OwnCSOLtoggleFree";
+import OwnCSOLchange from "./OwnCSOLchange";
 import { AddressOwner } from "../addressABI/AddressOwner";
 //fetch user account from redux storage. User account will be saved to Redux storage if user 
 //login with metamask on homepage (RConnectMet component in tokenOps).

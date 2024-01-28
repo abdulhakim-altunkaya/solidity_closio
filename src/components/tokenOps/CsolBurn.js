@@ -15,7 +15,7 @@ function CsolBurn() {
 
     let userBalance = await contractCSOL.getYourTokenBalance();
     let userBalance2 = userBalance.toString();
-    let userBalance3 = parseInt(userBalance);
+    let userBalance3 = parseInt(userBalance2);
     if(userBalance3 < 1) {
       alert("you dont have CSOL to burn");
       return;
@@ -27,7 +27,7 @@ function CsolBurn() {
   return (
     <div>
       <button className='button4' onClick={burnToken}>Burn CSOL</button>
-      <input type='number' className='inputFields' placeholder='enter amount'
+      <input type='number' className='inputFields' placeholder='amount'
         value={amount} onChange={ e => setAmount(e.target.value)} /> {message}
     </div>
   )

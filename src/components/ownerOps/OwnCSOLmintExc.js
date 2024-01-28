@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+//Contract is fetched from Zustand store
 import { useAccount } from '../../Store';
 
 //fetch user account from redux storage. User account will be saved to Redux storage if user 
@@ -13,6 +14,7 @@ function OwnCSOLmintExc() {
   //We have already done a check on parent Owner component. This check is a like an extra check.
   const userAccount2 = useSelector( (state) => state.userAccount)
 
+  //fetching contract from Zustand and initiating other state variables
   const contractCSOL = useAccount(state => state.contractCsol2);
   let [amount, setAmount] = useState("");
   let [receiver, setReceiver] = useState("");
@@ -40,11 +42,11 @@ function OwnCSOLmintExc() {
       alert("Invalid address type");
       return;
     }
-    //Security check 5: checking if limit of exchange tokens reached
+    //Security check 5: checking if limit of exchange tokens reached (600 million)
     let excTokens1 = await contractCSOL.exchangeTokens();
     let excTokens2 = excTokens1.toString();
     let excTokens3 = parseInt(excTokens2);
-    if(excTokens3 < 60000001) {
+    if(excTokens3 + amount1 > 600000000) {
       alert("Limit of exchange tokens reached. You cannot mint more");
       return;
     }
@@ -60,10 +62,10 @@ function OwnCSOLmintExc() {
   }
   return (
     <div>
-      <button className='button4' onClick={mintExc}>CSOL Mint Exchanges</button>
-      <input type='number' className='inputFields' placeholder='enter amount' 
+      <button className='button4' onClick={mintExc}>Csol Mint Exchange</button>
+      <input type='number' className='inputFields' placeholder='amount' 
         value={amount} onChange={ e => setAmount(e.target.value)} />
-      <input type='text' className='inputFields' placeholder='enter receiver address'
+      <input type='text' className='inputFields' placeholder='receiver address'
         value={receiver} onChange={ e => setReceiver(e.target.value)} /><br />
       {message}
     </div>

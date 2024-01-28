@@ -40,7 +40,7 @@ function RConnectMet() {
               <span>Closio Platform address:</span> 0xC65f8b1C0F135d42fwefwefwefwefwefwefwF247 <br />
               <span>Closio Token address:</span> 0xC65f8b1C0F135d422ea5850aEC33A2222cFCF247 <br />
               <span>Closio Token symbol:</span> CSOL<br />
-              <span>CSOL cap: </span>  100000000 (100 million) <br />
+              <span>CSOL cap: </span>  1000000000 (1 billion) <br />
               <span>CSOL Standard & Decimals:</span>  BEP20 & 18 <br />
               <span>Network:</span> Binance BSC Mainnet <br />
               <span>Owner address:</span> 0x0FFeAf1dd1B54606CdD816B97BaCF51936E3d35a <br />   
