@@ -33,8 +33,8 @@ function Owner() {
         <>
           <OwnCSOLmintExc />
           <OwnCSOLmintInv />
-          <OwnCSOLmintTeam />
           <OwnCSOLmintTre />
+          <OwnCSOLmintTeam />
           <OwnCSOLtoggleFree />
           <OwnCSOLchange />
         </>

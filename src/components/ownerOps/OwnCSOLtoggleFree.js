@@ -40,7 +40,7 @@ function OwnCSOLtoggleFree() {
   }
   return (
     <div>
-      <button className='button4' onClick={toggleFreeMinting}>Csol Toggle Free</button> {message}
+      <button className='button4' id='buttonLength' onClick={toggleFreeMinting}>Csol Toggle Free</button> {message}
     </div>
   )
 }

@@ -62,7 +62,7 @@ function OwnCSOLmintTeam() {
   }
   return (
     <div>
-      <button className='button4' onClick={mintDevelopers}>Csol Mint Team</button>
+      <button className='button4' id='buttonLength' onClick={mintDevelopers}>Csol Mint Team</button>
       <input type='number' className='inputFields' placeholder='amount' 
         value={amount} onChange={ e => setAmount(e.target.value)} />
       <input type='text' className='inputFields' placeholder='receiver address'

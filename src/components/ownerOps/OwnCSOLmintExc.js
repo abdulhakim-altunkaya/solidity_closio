@@ -62,7 +62,7 @@ function OwnCSOLmintExc() {
   }
   return (
     <div>
-      <button className='button4' onClick={mintExc}>Csol Mint Exchange</button>
+      <button className='button4' id='buttonLength' onClick={mintExc}>Csol Mint Exchange</button>
       <input type='number' className='inputFields' placeholder='amount' 
         value={amount} onChange={ e => setAmount(e.target.value)} />
       <input type='text' className='inputFields' placeholder='receiver address'

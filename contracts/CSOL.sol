@@ -130,7 +130,9 @@ contract CSOL is ERC20Capped, Ownable {
     function getContractTokenBalance() external view returns(uint) {
         return balanceOf(address(this)) / (10**18);
     }
+    
 
 }
 
 //Maybe event display on the frontend
+//Put owner address as dynamic data to redux or zustand. 

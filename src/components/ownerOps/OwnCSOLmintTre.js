@@ -62,7 +62,7 @@ function OwnCSOLmintTre() {
   }
   return (
     <div>
-      <button className='button4' onClick={mintTre}>Csol Mint Treasury</button>
+      <button className='button4' id='buttonLength' onClick={mintTre}>Csol Mint Treasury</button>
       <input type='number' className='inputFields' placeholder='amount' 
         value={amount} onChange={ e => setAmount(e.target.value)} />
       <input type='text' className='inputFields' placeholder='receiver address'
