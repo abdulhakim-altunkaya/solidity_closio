@@ -90,8 +90,8 @@ contract CSOL is ERC20Capped, Ownable {
         require(freeMinting == true, "free minting disabled by owner");
         require(block.timestamp > cooldownFree + 5 minutes, "Free minting is after 5 minutes");
         cooldownFree = block.timestamp;
+        freeTokens += 2;
         _mint(msg.sender, 2*(10**18));
-        freeTokens += 2
         emit TokenMintedFree(msg.sender, 2);
         return true;
     }
@@ -103,9 +103,10 @@ contract CSOL is ERC20Capped, Ownable {
         require(treasuryTokens < capWithoutDecimals*24/100);
         require(_amount > 0 && _amount < 1000001, "mint between 0 and 1000001");
         require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
-        _mint(_receiver, _amount*(10**18));
         treasuryTokens += _amount;
+        _mint(_receiver, _amount*(10**18));
         emit TokenMintedTreasury(_receiver, _amount);
+        return true;
     }
 
     //*******SIDE FUNCTIONS*******
