@@ -23,7 +23,7 @@ contract Closio is Ownable, ReentrancyGuard {
     //We will use CSOL tokens as fee to deposit and withdraw other tokens from the contract.
     //For example, you want to deposit 100 SHIB? Then you first need to pay 1 CSOL token to the contract.
     IERC20 public tokenContractCSOL;
-    function setTokenCSOL(address _tokenAddressCSOL) external {
+    function setTokenCSOL(address _tokenAddressCSOL) external onlyOwner {
         tokenContractCSOL = IERC20(_tokenAddressCSOL);
     }
 
@@ -32,6 +32,8 @@ contract Closio is Ownable, ReentrancyGuard {
     //If needed owner will be able to change WETH to any other token. However, this
     //does not mean that the website supports multitokens. Only one pool token at a time. 
     //Owner will set token contract at the beginning of website launch.
+    //This project is originally created for BSC and I know I should name it "WBNB" but I can 
+    //deploy the project to other chains, that's why by convention I think it should be named WETH
     IERC20 public tokenContractWETH;
     function setTokenWETH(address _tokenAddressWETH) external onlyOwner {
         tokenContractWETH = IERC20(_tokenAddressWETH);
@@ -81,10 +83,12 @@ contract Closio is Ownable, ReentrancyGuard {
         emit WithdrawCSOL(msg.sender, uint(balanceCSOL/(10**18)));
     }
 
+    /*
     // owner will be also withdraw the pool token in cases like where the 
     // depositor forgets the private key, or if deposit stucks for some reason.
     // However, owner will not be able to withdraw more then 10 WETH per day. 
     // This already makes a very good amount today, 10 WETH = 22k Euros
+    // In future versions, depending on user requests, this function can be enabled
     // contract --> account
     function collectPoolTokens(address _receiver, uint _amount) external onlyOwner {
         require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
@@ -93,6 +97,7 @@ contract Closio is Ownable, ReentrancyGuard {
         tokenContractWETH.transfer(_receiver, _amount*(10**18));
         emit WithdrawPool(_receiver, uint(_amount*(10**18)));
     }
+    */
 
     //************SECURITY CHECKS*************
     //CHECK 1: PAUSE CONTRACT
@@ -211,7 +216,7 @@ contract Closio is Ownable, ReentrancyGuard {
         return "success";
     }
 
-    function withdrawAll(string calldata _privateWord, address _receiver) external nonReentrant isPaused hasPaid returns(string memory) {
+    function withdrawAll(string calldata _privateWord, address _receiver) external nonReentrant isPaused hasPaid returns(bool) {
         //----VALIDATIONS
         //Validations Input: private word length
         require(bytes(_privateWord).length > 0, "private word is not long enough");
@@ -234,17 +239,17 @@ contract Closio is Ownable, ReentrancyGuard {
         //this if we put Require. Each time Require fails, they will continue keep their service fee and call this function
         //again until they find a matching private key by chance. To prevent it we will use IF instead. 
         if (balanceFinal == 0) {
-            return "balance is 0";
+            return false;
         }
         // Set the balance associated with the hash to 0
         balances[balanceHash] = 0;
         //transfer the tokens to the receiver address
         tokenContractWETH.transfer(_receiver, balanceFinal);
-        return "success";
+        return true;
     }
 
     function withdrawPart(string calldata _privateWord, bytes32 _newHash, address _receiver, uint _amount) 
-    external nonReentrant isPaused hasPaid returns(string memory) 
+    external nonReentrant isPaused hasPaid returns(bool) 
     {
         //----VALIDATIONS
         //Validations Input: private word length
@@ -268,21 +273,20 @@ contract Closio is Ownable, ReentrancyGuard {
         //deter spammers from checking if they can guess hashes.
         bool isExisting = checkHash(_newHash);
         if(isExisting == true) {
-            return "balance is zero";
+            return false;
         }
-        //I know error is repeating hash above but it means spammer found an existing hash.
+        //This error means spammer found an existing hash.
         //This shouldnt happen unless they crack keccak256 with quantum computers or private word of someone 
         //is something easily guessable.  
-        //So, to confuse the spammer, I am returning the same string as below so that he will not know.
 
         //-----GETTING BALANCE OF THE HASH
         (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
         uint amount = _amount * (10**18);
         if (balanceFinal == 0) {
-            return "balance is zero";
+            return false;
         }
         if(amount > balanceFinal) {
-            return "withdrawal amount is bigger than balance";
+            return false;
         }
         // Set the balance associated with the hash to 0
         balances[balanceHash] = 0;
@@ -292,12 +296,12 @@ contract Closio is Ownable, ReentrancyGuard {
         //redepositing the amount left
         uint amountLeft = balanceFinal - amount;
         if(amountLeft < 1) {
-            return "amount left must be bigger than 1";
+            return false;
         }
         bytes32 newHash = keccak256(abi.encodePacked(_newHash, uint(1 ether)));
         balances[newHash] = amountLeft;
         balanceIds.push(newHash);
-        return "success";
+        return true;
     }
 
     receive() external payable {}

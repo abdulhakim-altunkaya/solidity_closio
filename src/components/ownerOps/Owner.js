@@ -5,6 +5,13 @@ import OwnCSOLmintTeam from "./OwnCSOLmintTeam";
 import OwnCSOLmintTre from "./OwnCSOLmintTre";
 import OwnCSOLtoggleFree from "./OwnCSOLtoggleFree";
 import OwnCSOLchange from "./OwnCSOLchange";
+
+import OwnClosioSetWETH from "./OwnClosioSetWETH";
+import OwnClosioSetCSOL from "./OwnClosioSetCSOL";
+import OwnClosioSetFee from "./OwnClosioSetFee";
+import OwnClosioPause from "./OwnClosioPause";
+import OwnClosioGetFees from "./OwnClosioGetFees";
+
 import { AddressOwner } from "../addressABI/AddressOwner";
 //fetch user account from redux storage. User account will be saved to Redux storage if user 
 //login with metamask on homepage (RConnectMet component in tokenOps).
@@ -37,6 +44,12 @@ function Owner() {
           <OwnCSOLmintTeam />
           <OwnCSOLtoggleFree />
           <OwnCSOLchange />
+
+          <OwnClosioSetCSOL />
+          <OwnClosioSetWETH />
+          <OwnClosioSetFee />
+          <OwnClosioGetFees />
+          <OwnClosioPause />
         </>
         :
         <></>
