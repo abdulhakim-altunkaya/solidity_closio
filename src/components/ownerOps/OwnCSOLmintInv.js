@@ -56,7 +56,7 @@ function OwnCSOLmintInv() {
     if (mintResult === true) {
       setMessage("Minting successful");
     } else {
-      alert("Minting failed failed. Error code: CSOL contract mintInvestors function returned false.")
+      alert("Minting failed. Error code: CSOL contract mintInvestors function returned false.")
     }
 
   }
