@@ -16,41 +16,52 @@ contract CSOL is ERC20Capped, Ownable {
     event TokenMintedInvestors(address minter, uint amount);
     event TokenMintedExchanges(address minter, uint amount);
     event TokenMintedFree(address minter, uint amount);
+    event TokenMintedTreasury(address minter, uint amount);
     event TokenBurned(address burner, uint amount);
 
     //creating token based on lazy minting capped model
     //cap will be set to 1.000.000.000 (1 billion)
+    //10% early investors, 60% exchanges, 5% developers, 1% free giving, 24% Treasury(grants, projects, etc)
     constructor(uint _cap) ERC20("Closio", "CSOL") ERC20Capped(_cap*(10**18)) Ownable(msg.sender) {
     }
     
     uint public cooldown = 1;//random value to initiate cooldown. Actual value will come later once we call important function. 
 
-    //50 millions tokens will be for early investors
+    //100 millions tokens will be for early investors, 10% of total cap
     //Each minting will be limited to 5 millions for extra security
+    uint internal investorTokens = 0;
     function mintInvestors(uint _amount, address _receiver) external onlyOwner {
+        uint capWithoutDecimals = uint(cap() / (10**18));
+        require(investorTokens < capWithoutDecimals*10/100);
         require(_amount > 0 && _amount < 5000001, "mint between 0 and 5000001");
         require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
         cooldown = block.timestamp;
         _mint(_receiver, _amount*(10**18));
+        investorTokens += _amount;
         emit TokenMintedInvestors(_receiver, _amount);
     }
 
-    //200 million tokens will be for exchanges 
-    //And each minting is limited to 1.000.000 tokens for extra security.
-    //By limiting to 1 million, the team will slowly distrubute tokens to exchanges
-    function mintExchanges(uint _amount, address _receiver) external onlyOwner {
-        require(_amount > 0 && _amount < 1000001, "mint between 0 and 1000001");
+    //******EXCHANGE TOKENS*******
+    //600 million tokens will be for exchanges. 60% of total cap.
+    //And each minting is limited to 5.000.000 tokens for extra security.
+    //By limiting to 5 million, the team will slowly distrubute tokens to exchanges
+    uint internal exchangeTokens = 0;
+    function mintExchanges(uint _amount, address _receiver) external onlyOwner return(bool) {
+        uint capWithoutDecimals = uint(cap() / (10**18));
+        require(exchangeTokens < capWithoutDecimals*60/100);
         require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
         cooldown = block.timestamp;
         _mint(_receiver, _amount*(10**18));
+        exchangeTokens += _amount;
         emit TokenMintedExchanges(_receiver, _amount);
+        return true;
     }
-
-
-    uint teamTokens = 0;
-    //Tokens for the team should not exceed 5% of the cap, which is 50 millions. 
+    
+    //*****TEAM TOKENS******
+    //50 millions tokens for developers. 5% of total cap. 
     //And each minting is limited to 500.000 tokens for extra security.
     //Also, cooldown check is added for extra security
+    uint internal teamTokens = 0;
     function mintTeam(uint _amount, address _receiver) external onlyOwner {
         uint capWithoutDecimals = uint(cap() / (10**18));
         require(teamTokens < capWithoutDecimals*5/100);
@@ -62,22 +73,39 @@ contract CSOL is ERC20Capped, Ownable {
         emit TokenMintedTeam(_receiver, _amount);
     }
  
+    //*****FREE TOKENS*****
     uint private cooldownFree = 1;
-
     bool public freeMinting = true;
     function toggleFree() external onlyOwner {
         freeMinting = !freeMinting;
     }
-    //People who want to test the website will be able to do so by getting 2 tokens here.
+    //People who want to test the platform can get 2 tokens here.
+    uint internal freeTokens = 0;
     function mintFree() external returns(bool) {
+        uint capWithoutDecimals = uint(cap() / (10**18));
+        require(freeTokens < capWithoutDecimals*1/100);
         require(freeMinting == true, "free minting disabled by owner");
         require(block.timestamp > cooldownFree + 5 minutes, "Free minting is after 5 minutes");
         cooldownFree = block.timestamp;
         _mint(msg.sender, 2*(10**18));
+        freeTokens += 2
         emit TokenMintedFree(msg.sender, 2);
         return true;
     }
 
+    // treasury tokens are limited to 24% of total cap.
+    uint internal treasuryTokens = 0;
+    function mintTreasury(uint _amount, address _receiver) external onlyOwner returns(bool) {
+        uint capWithoutDecimals = uint(cap() / (10**18));
+        require(treasuryTokens < capWithoutDecimals*24/100);
+        require(_amount > 0 && _amount < 1000001, "mint between 0 and 1000001");
+        require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
+        _mint(_receiver, _amount*(10**18));
+        treasuryTokens += _amount;
+        emit TokenMintedTeam(_receiver, _amount);
+    }
+
+    //*******SIDE FUNCTIONS*******
     //burn token function, open to anybody, decimals handled for easy frontend integration
     function burnToken(uint _amount) external {
         require(_amount > 0, "Enter an amount to burn");
@@ -99,3 +127,5 @@ contract CSOL is ERC20Capped, Ownable {
     }
 
 }
+
+//Maybe event display on the frontend
