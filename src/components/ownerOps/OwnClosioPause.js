@@ -14,7 +14,7 @@ function OwnClosioPause() {
   //We have already done a check on parent Owner component. This check is a like an extra check.
   const userAccount2 = useSelector( (state) => state.userAccount)
 
-  //fetching contract from Zustand and initiating other state variables
+  //fetching contract from Zustand
   const contractClosio = useAccount(state => state.contractClosio2);
 
   let [message, setMessage] = useState("");
@@ -29,7 +29,7 @@ function OwnClosioPause() {
     //Execution
     let toggleResult = await contractClosio.togglePause();
     let contractStatus = await contractClosio.pauseContract();
-    if (toggleResult === true && contractStatus === true) {
+    if (toggleResult === true && contractStatus === true) { 
       setMessage("Contract paused");
     } else if(toggleResult === true && contractStatus === false) {
       setMessage("Contract unpaused");

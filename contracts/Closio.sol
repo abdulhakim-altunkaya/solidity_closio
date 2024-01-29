@@ -23,8 +23,9 @@ contract Closio is Ownable, ReentrancyGuard {
     //We will use CSOL tokens as fee to deposit and withdraw other tokens from the contract.
     //For example, you want to deposit 100 SHIB? Then you first need to pay 1 CSOL token to the contract.
     IERC20 public tokenContractCSOL;
-    function setTokenCSOL(address _tokenAddressCSOL) external onlyOwner {
+    function setTokenCSOL(address _tokenAddressCSOL) external onlyOwner returns(bool) {
         tokenContractCSOL = IERC20(_tokenAddressCSOL);
+        return true;
     }
 
     //************SETTING POOL TOKEN: WETH************
@@ -35,8 +36,9 @@ contract Closio is Ownable, ReentrancyGuard {
     //This project is originally created for BSC and I know I should name it "WBNB" but I can 
     //deploy the project to other chains, that's why by convention I think it should be named WETH
     IERC20 public tokenContractWETH;
-    function setTokenWETH(address _tokenAddressWETH) external onlyOwner {
+    function setTokenWETH(address _tokenAddressWETH) external onlyOwner returns(bool) {
         tokenContractWETH = IERC20(_tokenAddressWETH);
+        return true;
     }
 
     //************STATE VARIABLES*************
@@ -77,11 +79,12 @@ contract Closio is Ownable, ReentrancyGuard {
 
     // contract --> account
     // owner can collect CSOL tokens in the contract.
-    function collectFees() external onlyOwner {
+    function collectFees() external onlyOwner returns(bool) {
         uint balanceCSOL = tokenContractCSOL.balanceOf(address(this));
         require(balanceCSOL > 0, "There is no CSOL");
         tokenContractCSOL.transfer(msg.sender, balanceCSOL);
         emit WithdrawCSOL(msg.sender, uint(balanceCSOL/(10**18)));
+        return true;
     }
 
     /*
@@ -321,6 +324,7 @@ contract Closio is Ownable, ReentrancyGuard {
         if (WETHBalance == 0) {
             return "insufficient WETH Balance";
         }"
-        
+    
+    //OwnClosioSetWETH: Change WBNB here to other coins in other chains. 4 Places you will need to change.
     */
     
