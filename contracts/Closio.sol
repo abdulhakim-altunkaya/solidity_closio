@@ -50,15 +50,16 @@ contract Closio is Ownable, ReentrancyGuard {
     uint public fee = 1;
     mapping(address => bool) public feePayers;
     uint private cooldown = 1;//a small random value just to initiate the cooldown
-    bool public contractStatus = true;
+    bool public pauseContract = false;
 
     //************PAYING AND COLLECTING PLATFORM FEES*************
     //There will be a fee for calling deposit and withdraw function to deter scammers.
     //Fee will be in CSOL token. Current fee is 1 CSOL for each function call.
     //addresses paying fee, will be saved in a mapping and later this mapping will be checked
     //to see if fee is paid.
-    function setFee(uint _newFee) external onlyOwner {
+    function setFee(uint _newFee) external onlyOwner returns(bool) {
         fee = _newFee;
+        return true;
     }
 
     // account ---> contract (token transfer)
@@ -103,13 +104,14 @@ contract Closio is Ownable, ReentrancyGuard {
     //CHECK 1: PAUSE CONTRACT
     error Stopped(string message, address owner);
     modifier isPaused() {
-        if (contractStatus == false) {
+        if (pauseContract == true) {
             revert Stopped("Contract paused, contact owner: ", owner());
         }
         _;
     }
-    function togglePause() external onlyOwner {
-        contractStatus = !contractStatus;
+    function togglePause() external onlyOwner returns(bool) {
+        pauseContract = !pauseContract;
+        return true;
     }
 
     //CHECK 2: PREVENT USING REPEATING HASHES
