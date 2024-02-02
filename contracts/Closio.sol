@@ -154,12 +154,13 @@ contract Closio is Ownable, ReentrancyGuard {
 
 
     /* HASH CREATION AND COMPARISON FUNCTIONS
-    1)Function to create a hash. Users will be advised to use other websites to create their keccak256 hashes.
-    But if they dont, they can use this function.
+    1)Function to create a hash. Users can use createHashSalty function to create a hash. Or they can copy
+    //this function and use it by themselves on remix.
     2) As we dont need any specific type information of the private word("_word"), we dont need to use 
     "abi.encode". We solely want the hash of our input and no type information with it. Thats why
     it is "abi.encodePacked".
     */
+    //Currently createHash function will not be used. But we will keep, future versions of website might make use of it.
     function createHash(string calldata _privateWord) external pure returns(bytes32) {
         return keccak256(abi.encodePacked(_privateWord));
     }
@@ -256,7 +257,7 @@ contract Closio is Ownable, ReentrancyGuard {
     function withdrawPart(string calldata _privateWord, bytes32 _newHash, address _receiver, uint _amount) 
     external nonReentrant isPaused hasPaid returns(bool) 
     {
-        //----VALIDATIONS
+        //----VALIDATIONS 
         //Validations Input: private word length
         require(bytes(_privateWord).length > 0, "private word is not long enough");
         //Validations Input: receiver address if valid
@@ -309,9 +310,16 @@ contract Closio is Ownable, ReentrancyGuard {
         return true;
     }
 
+    function getContractWETHBalance() external view returns(uint) {
+        return tokenContractWETH.balanceOf(address(this)) / (10**18);
+    }
+    function getUserWETHApproval() external view returns(uint) {
+        return tokenContractWETH.allowance(msg.sender, address(this)) / (10**18);
+    }
+
+
     receive() external payable {}
     fallback() external payable {}
-
 }
 
 
@@ -326,5 +334,9 @@ contract Closio is Ownable, ReentrancyGuard {
         }"
     
     //OwnClosioSetWETH: Change WBNB here to other coins in other chains. 4 Places you will need to change.
+
+    //share createsalty hash function and in a video, show people how to use it on remix by themselves
+
+
     */
     

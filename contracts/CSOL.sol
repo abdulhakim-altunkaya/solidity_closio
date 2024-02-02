@@ -116,7 +116,7 @@ contract CSOL is ERC20Capped, Ownable {
         require(_amount > 0, "Enter an amount to burn");
         require(uint(balanceOf(msg.sender)) > 0, "You dont have tokens to burn");
         _burn(msg.sender, _amount*(10**18));
-        emit TokenBurned(msg.sender, _amount);
+        emit TokenBurned(msg.sender, _amount); 
     }
 
     function getTotalSupply() external view returns(uint) {
