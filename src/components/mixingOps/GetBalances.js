@@ -23,8 +23,10 @@ function GetBalances() {
       alert("Please install Metamask to your Browser");
       return;
     }
-    if (userAccount2 === "underfined" || "") {
-      alert("Please sign in to website from ")
+    //check 2: if user has signed in or not
+    if (userAccount2 === "undefined" || userAccount2 === "") {
+      alert("Please sign in to website. Go to Token Operations section and click on Connect Metamask button.");
+      return;
     }
 
     //fetching platform WBNB
@@ -61,13 +63,13 @@ function GetBalances() {
         How to use Closio platform: <br />
         1. You need to have CSOL and WBNB tokens. <br />
         2. You must be on Binance BSC Mainnet and have BNB coins. <br />
-        3. Approve the platform with WBNB. Logic:<br />
+        3. Click on "Approve WBNB". Logic:<br />
         <span>Amount of WBNB you deposit &lt; Amount you appove &lt; Amount you have in your wallet </span><br />
-        4. Approve the platform with CSOL.<br />
+        4. Click on "Approve CSOL".<br />
         5. Think of a alphanumerical private word with special characters. < br/>
         6. Write it in the "Create a Hash" area and click "Create a Hash". <br />
         7. Save your private word and its hash. Do not lose them. <br />
-        8. Pay fee (1 CSOL) by clicking on "Pay Fee". <br />
+        8. Click on "Pay Fee". <br />
         9. Go to "Deposit" area, enter hash and the WBNB amount you want to deposit. <br />
         10. If you want to withdraw all, first "Pay Fee" again, then go to "Withdraw All" and enter details. <br />
         11. If you want to withdraw part, "Pay Fee" again, create a new hash and enter other details.
