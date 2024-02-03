@@ -125,12 +125,11 @@ contract CSOL is ERC20Capped, Ownable {
 
     function getYourTokenBalance() external view returns(uint) {
         return balanceOf(msg.sender) / (10**18);
-    }
+    } 
 
     function getContractTokenBalance() external view returns(uint) {
         return balanceOf(address(this)) / (10**18);
     }
-    
 
 }
 

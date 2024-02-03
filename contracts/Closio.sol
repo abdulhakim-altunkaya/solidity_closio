@@ -316,7 +316,9 @@ contract Closio is Ownable, ReentrancyGuard {
     function getUserWETHApproval() external view returns(uint) {
         return tokenContractWETH.allowance(msg.sender, address(this)) / (10**18);
     }
-
+    function getUserCSOLApproval() external view returns(uint) {
+        return tokenContractCSOL.allowance(msg.sender, address(this)) / (10**18);
+    }
 
     receive() external payable {}
     fallback() external payable {}
@@ -337,6 +339,9 @@ contract Closio is Ownable, ReentrancyGuard {
 
     //share createsalty hash function and in a video, show people how to use it on remix by themselves
 
+    //add checks to make sure user can only deposit WBNB.
+
+    
 
     */
     
