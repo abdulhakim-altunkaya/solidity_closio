@@ -40,9 +40,12 @@ function ApproveFee() {
     }
 
     //execution
-    await contractCSOL.approveClosioCsol(AddressClosio, 10);
-    setMessage(`Success, approval amount: 10 CSOL`);
-    
+    let resultApprove = await contractCSOL.approveClosioCsol(AddressClosio, 10);
+    if (resultApprove === true) {
+      setMessage(`Success, approval amount: 10 CSOL`);
+    } else {
+      alert("approving Closio contract for WETH amount failed.");
+    }    
   }
 
   return (
