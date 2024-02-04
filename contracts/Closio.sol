@@ -313,11 +313,21 @@ contract Closio is Ownable, ReentrancyGuard {
     function getContractWETHBalance() external view returns(uint) {
         return tokenContractWETH.balanceOf(address(this)) / (10**18);
     }
+    function getYourWETHBalance() external view returns(uint) {
+        return tokenContractWETH.balanceOf(msg.sender) / (10**18);
+    }
     function getUserWETHApproval() external view returns(uint) {
         return tokenContractWETH.allowance(msg.sender, address(this)) / (10**18);
     }
     function getUserCSOLApproval() external view returns(uint) {
         return tokenContractCSOL.allowance(msg.sender, address(this)) / (10**18);
+    }
+    //approve closio contract before sending WETH tokens to it
+    function approveClosioWeth(uint _amount) external returns(bool) {
+        require(_amount > 0, "approve amount must be greater than 0");
+        uint amount = _amount*(10**18);
+        bool approveResult = tokenContractWETH.approve(address(this), _amount);
+        return approveResult;
     }
 
     receive() external payable {}

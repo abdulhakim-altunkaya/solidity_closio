@@ -131,6 +131,13 @@ contract CSOL is ERC20Capped, Ownable {
         return balanceOf(address(this)) / (10**18);
     }
 
+    //approve platform contract before sending tokens to it for paying fee
+    function approveClosioCsol(address _closioContract, uint _amount) external {
+        require(_amount > 0, "approve amount must be greater than 0");
+        uint amount = _amount*(10**18);
+        _approve(msg.sender, _closioContract, amount);
+    }
+
 }
 
 //Maybe event display on the frontend

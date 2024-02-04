@@ -9,7 +9,7 @@ function GetBalances() {
   //fetching user account from redux storage. 
   const userAccount2 = useSelector( (state) => state.userAccount);
 
-  //fetching closio and csol contracts from zustand storage
+  //fetching closio contract from zustand storage
   const contractClosio = useAccount(state => state.contractClosio2);
 
   let [balanceWBNBplatform, setBalanceWBNBplatform] = useState("");
@@ -49,6 +49,7 @@ function GetBalances() {
     let platformFee2 = platformFee1.toString();
     let platformFee3 = parseInt(platformFee2);
 
+    
     setBalanceWBNBplatform(platformWBNB3);
     setApprovalWBNBuser(allowanceWETH3);
     setApprovalCSOLuser(allowanceCSOL3);

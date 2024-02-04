@@ -9,7 +9,7 @@ function PayFee() {
   //fetching user account from redux storage. 
   const userAccount2 = useSelector( (state) => state.userAccount);
 
-  //fetching closio and csol contracts from zustand storage
+  //fetching closio contract from zustand storage
   const contractClosio = useAccount(state => state.contractClosio2);
 
   let [message, setMessage] = useState("");
