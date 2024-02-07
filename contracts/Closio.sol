@@ -356,5 +356,7 @@ contract Closio is Ownable, ReentrancyGuard {
 
     //Users will deposit with fractional numbers. Make sure no error on rounding them. 
 
+    //At the execution part of withdraw all component, there are 3 if statements. Can you print each statement to see if it works?
+
     */
     

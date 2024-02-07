@@ -7,7 +7,6 @@ import { AddressClosio } from "../addressABI/addressClosio";
 
 import { useMediaQuery } from 'react-responsive';
 
-
 function Deposit() {
 
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -87,7 +86,7 @@ function Deposit() {
     }
 
     //check 7: if user has paid service fee
-    let feePaymentStatus = await contractClosio.feePayers(userAccount);
+    let feePaymentStatus = await contractClosio.feePayers(userAccount2);
     if(feePaymentStatus === false) {
       alert("You need to pay fee. Each time you call deposit, withdraw all or withdraw part functions, it will cost you 1 CSOL");
       return;
@@ -122,5 +121,3 @@ function Deposit() {
 }
 
 export default Deposit;
-
-
