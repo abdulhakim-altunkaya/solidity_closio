@@ -52,62 +52,62 @@ function Deposit() {
       return;
     }
 
-
-    //check 4: if user has WETH
+    //check 5: if user has WETH and if deposit is smaller than balance
     let userBalanceWETH1 = await contractClosio.getYourWETHBalance();
     let userBalanceWETH2 = userBalanceWETH1.toString();
     let userBalanceWETH3 = parseInt(userBalanceWETH2);
     if(userBalanceWETH3 <= 0) {
       alert("You dont have WBNB to deposit");
       return;
+    } else if(amountInput1 > userBalanceWETH3) {
+      alert("Your deposit amount is bigger than your balance");
+      return;
     }
 
-    let allowanceAmount = await contractTokenA.allowance(userAccount, AddressCoinfog);
-    let allowanceAmount2 = allowanceAmount / (10**18);
-    let allowanceAmount3 = allowanceAmount2.toString()
+
+    //check 6: if user has approved the deposit amount
+    let allowanceAmount1 = await contractClosio.getUserWETHApproval();
+    let allowanceAmount2 = allowanceAmount1.toString()
+    let allowanceAmount3 = parseInt(allowanceAmount2);
     if(allowanceAmount3 < amountInput1) {
-      alert("You approve amount is less than your deposit amount. Go to Approve button and approve the contract with amount you want to deposit (Security Check 5)");
+      alert("Your approve amount is less than your deposit amount. Go to Approve button and approve the contract with amount you want to deposit");
       return;
     }
 
-    //HASH CHECKS
+    //check 6: if hash is valid
     if(hashInput.length < 64) {
-      alert("invalid hash length (security check 6)");
+      alert("invalid hash length");
       return;
-    }
-    
-    if(hashInput.slice(0, 2) !== "0x") {
-      alert("invalid hash (security check 7)");
+    } else if(hashInput.slice(0, 2) !== "0x") {
+      alert("invalid hash");
       return;
-    }
-    
-    if(hashInput === "") {
-      alert("hash area cannot be empty (security check 8)");
+    } else if(hashInput === "") {
+      alert("hash area cannot be empty");
       return;
     }
 
-    let doesHashExist = await contractCoinFog.checkHashExist(hashInput);
-    if(doesHashExist === true) {
-      alert("this hash already exists, create a new hash from another private keyword (security check 9)");
+    //check 7: if user has paid service fee
+    let feePaymentStatus = await contractClosio.feePayers(userAccount);
+    if(feePaymentStatus === false) {
+      alert("You need to pay fee. Each time you call deposit, withdraw all or withdraw part functions, it will cost you 1 CSOL");
       return;
     }
 
-    //USER CHECKS
-    let feePaidStatus = await contractCoinFog.feePayers(userAccount);
-    if(feePaidStatus === false) {
-      alert("You need to pay transaction fee (security check 10)");
+    //check 8: if system is paused
+    let isSystemPaused = await contractClosio.pauseContract();
+    if(isSystemPaused === true) {
+      alert("System has been paused by Owner. Contact him to unpause: drysoftware1@gmail.com");
       return;
     }
 
-    //SYSTEM CHECKS
-    let systemPause = await contractCoinFog.status();
-    if(systemPause === true) {
-      alert("System has been paused by owner. Contact him to unpause it (security check 11)");
+    //execution
+    let exeResult = await contractClosio.deposit(hashInput, amountInput);
+    if(exeResult = "insufficientWethBalance") {
+      alert("You probably entered one of your old hash. Create a new hash. Then pay fee again. And then call deposit function.");
       return;
+    } else {
+      setMessage(`You successfully deposited ${amountInput1} WETH`);
     }
-
-    await contractCoinFog.deposit(hashInput, amountInput1);
-    setMessage(`You successfully deposited ${amountInput1} toka`);
 
   }
   return (

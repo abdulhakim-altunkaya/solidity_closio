@@ -203,15 +203,17 @@ contract Closio is Ownable, ReentrancyGuard {
         //----RESETTING SERVICE FEE
         //resetting service fee. Each function call will cost
         feePayers[msg.sender] = false;
-        //Validations Input: new hash if repeating. The reason why this line is under fee resetting is to 
+        //Validations Input: new hash if repeating. The reason why it is under fee resetting is to 
         //deter spammers from checking if they can guess hashes.
+        //I know error below is repeating hash but it means spammer found an existing hash.
+        //This shouldnt happen unless they crack keccak256 with quantum computers or private word of someone 
+        //is something easily guessable. Or may be the user has entered his 
+        //his private word a few times. I am throwing this return message to confuse the spammer.
         bool isExisting = checkHash(_hash);
         if(isExisting == true) {
-            return "insufficient WETH Balance";
+            return "insufficientWethBalance";
         }
-        //I know error is repeating hash above but it means spammer found an existing hash.
-        //This shouldnt happen unless they crack keccak256 with quantum computers or private word of someone 
-        //is something easily guessable. I am throwing same return message to confuse the spammer.
+
         bytes32 _newHash = keccak256(abi.encodePacked(_hash, uint(1 ether)));
         uint amount = _amount * (10**18);
 
@@ -304,6 +306,7 @@ contract Closio is Ownable, ReentrancyGuard {
         if(amountLeft < 1) {
             return false;
         }
+        
         bytes32 newHash = keccak256(abi.encodePacked(_newHash, uint(1 ether)));
         balances[newHash] = amountLeft;
         balanceIds.push(newHash);
@@ -351,7 +354,7 @@ contract Closio is Ownable, ReentrancyGuard {
 
     //add checks to make sure user can only deposit WBNB.
 
-    
+    //Users will deposit with fractional numbers. Make sure no error on rounding them. 
 
     */
     
