@@ -357,6 +357,10 @@ contract Closio is Ownable, ReentrancyGuard {
     //Users will deposit with fractional numbers. Make sure no error on rounding them. 
 
     //At the execution part of withdraw all component, there are 3 if statements. Can you print each statement to see if it works?
+    the last "else" might complicate the frontend because when I call this withdrawAll function, it will not immediately return
+    or false. For that reason, third "else" might get triggered and frontend might display an error message while the actual
+    tx is still going on. 
 
+    
     */
     

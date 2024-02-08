@@ -11,7 +11,7 @@ function WithdrawAll() {
 
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
-  //fetching user account from redux storage. 
+  //fetching user account from redux storage.  
   const userAccount2 = useSelector( (state) => state.userAccount);
 
   //fetching closio and csol contracts from zustand storage
@@ -35,18 +35,18 @@ function WithdrawAll() {
       return;
     }
 
-    //check 3: if private word is empty
+    //check 3: if private word or receiver input is empty
     if(privateWord === "" || receiver === "") {
-      alert("You cannot leave input areas empty (security check 1)");
+      alert("You cannot leave input areas empty");
       return
     }
 
     //check 4: if receiver address is valid
     if(receiver.length < 39) {
-      alert("invalid address length (security check 2)");
+      alert("invalid address length");
       return;
     } else if(receiver.slice(0, 2) !== "0x") {
-      alert("invalid hash (security check 3)");
+      alert("invalid hash");
       return;
     }
 
@@ -66,6 +66,7 @@ function WithdrawAll() {
     
     //execution
     let exeResult = await contractClosio.withdrawAll(privateWord, receiver);
+
     if(exeResult === false) {
       alert("You probably entered one of your old private keyword which does not have any value. Pay fee again and enter correct keyword");
       return;
@@ -75,7 +76,7 @@ function WithdrawAll() {
       alert("Withdrawal failed, check your balance and call this function again.");
       return;
     }
-
+    
   }
   return (
     <div>
