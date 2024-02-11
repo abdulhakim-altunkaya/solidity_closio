@@ -112,9 +112,8 @@ contract Closio is Ownable, ReentrancyGuard {
         }
         _;
     }
-    function togglePause() external onlyOwner returns(bool) {
+    function togglePause() external onlyOwner {
         pauseContract = !pauseContract;
-        return true;
     }
 
     //CHECK 2: PREVENT USING REPEATING HASHES

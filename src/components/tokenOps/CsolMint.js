@@ -6,7 +6,7 @@ function CsolMint() {
   const contractCSOL = useAccount(state => state.contractCsol2);
 
   let [message, setMessage] = useState("");
-
+ 
   const mintToken = async () => {
 
     try {

@@ -11,7 +11,6 @@ function LowPlatform() {
   return (
     <div>
       <Platform />
-      {userAccount2}
     </div>
   )
 }

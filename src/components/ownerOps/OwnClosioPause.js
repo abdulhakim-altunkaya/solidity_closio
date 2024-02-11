@@ -20,22 +20,44 @@ function OwnClosioPause() {
   let [message, setMessage] = useState("");
 
   const toggleContractStatus = async () => {
-    //Security check 1: checking if owner and caller matches
-    if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
-      alert("you are not owner");
-      return;
+    try {
+      //check 1: if user has metamask installed on browser
+      if(window.ethereum === "undefined") {
+        alert("Please install Metamask to your Browser");
+        return;
+      }
+      //Check 2: checking if owner and caller matches
+      if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
+        alert("you are not owner");
+        return;
+      }
+      //Execution
+      let toggleResult = await contractClosio.togglePause();
+      await toggleResult.wait();
+      let contractStatus = await contractClosio.pauseContract();
+      if (contractStatus === true) { 
+        setMessage("  Contract paused");
+      } else if(contractStatus === false) {
+        setMessage("  Contract unpaused");
+      } else { 
+        alert("Status change failed. Error code: Closio contract togglePause function did not return true");
+      }    
+    } catch (error) {
+      // Check if the error contains the "transaction" field
+      if (error.transaction && error.transaction.from) {
+        // Log the error.message field
+        console.error('Error Message:', error.error.data.message);
+        alert("Contract pause failed");
+        setMessage(error.error.data.message);
+      } else {
+        // Log all error message
+        console.error(error);
+      }
     }
 
-    //Execution
-    let toggleResult = await contractClosio.togglePause();
-    let contractStatus = await contractClosio.pauseContract();
-    if (toggleResult === true && contractStatus === true) { 
-      setMessage("Contract paused");
-    } else if(toggleResult === true && contractStatus === false) {
-      setMessage("Contract unpaused");
-    } else { 
-      alert("Status change failed. Error code: Closio contract togglePause function did not return true");
-    }
+
+
+
 
   }
   return (

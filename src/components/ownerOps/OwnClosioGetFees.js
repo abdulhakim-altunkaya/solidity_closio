@@ -20,19 +20,34 @@ function OwnClosioGetFees() {
   let [message, setMessage] = useState("");
 
   const collectAllFees = async () => {
-    //Security check 1: checking if owner and caller matches
-    if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
-      alert("you are not owner");
-      return;
+    try {
+      //check 1: if user has metamask installed on browser
+      if(window.ethereum === "undefined") {
+        alert("Please install Metamask to your Browser");
+        return;
+      }
+      //Check 2: checking if owner and caller matches
+      if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
+        alert("you are not owner");
+        return;
+      }
+      //Execution
+      let collectResult = await contractClosio.collectFees();
+      await collectResult.wait();
+      setMessage("Fees collected"); 
+    } catch (error) {
+      // Check if the error contains the "transaction" field
+      if (error.transaction && error.transaction.from) {
+        // Log the error.message field
+        console.error('Error Message:', error.error.data.message);
+        alert("Collecting fees failed");
+        setMessage(error.error.data.message);
+      } else {
+        // Log all error message
+        console.error(error);
+      }
     }
 
-    //Execution
-    let collectResult = await contractClosio.collectFees();
-    if (collectResult === true) {
-      setMessage("Fees collected");
-    } else { 
-      alert("Fee Collection failed. Error code: Closio contract collectFees function did not return true");
-    }
 
   }
   return (
