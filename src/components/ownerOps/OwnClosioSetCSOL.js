@@ -39,6 +39,7 @@ function OwnClosioSetCSOL() {
 
     //Execution
     let setCSOLresult = await contractClosio.setTokenCSOL(csolAddress);
+    await setCSOLresult.wait();
     if (setCSOLresult === true) {
       setMessage("CSOL address set.");
     } else {

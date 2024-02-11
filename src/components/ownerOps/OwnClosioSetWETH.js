@@ -39,6 +39,7 @@ function OwnClosioSetWETH() {
 
     //Execution
     let setWETHresult = await contractClosio.setTokenWETH(wethAddress);
+    await setWETHresult.wait();
     if (setWETHresult === true) {
       setMessage("WBNB address set.");
     } else {

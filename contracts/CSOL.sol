@@ -79,9 +79,8 @@ contract CSOL is ERC20Capped, Ownable {
     //*****FREE TOKENS*****
     uint private cooldownFree = 1;
     bool public freeMinting = true;
-    function toggleFree() external onlyOwner returns(bool) {
+    function toggleFree() external onlyOwner {
         freeMinting = !freeMinting;
-        return true;
     }
     //People who want to test the platform can get 2 tokens here.
     uint public freeTokens = 0;

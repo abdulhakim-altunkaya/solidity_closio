@@ -20,8 +20,9 @@ function CsolBurn() {
       alert("you dont have CSOL to burn");
       return;
     }
-    await contractCSOL.burnToken(amount1);
-    setMessage("success, you burned", amount1, "tokens");
+    let burningTx = await contractCSOL.burnToken(amount1);
+    await burningTx.wait();
+    setMessage(`success, ${amount1} csol burned`);
   }
 
   return (

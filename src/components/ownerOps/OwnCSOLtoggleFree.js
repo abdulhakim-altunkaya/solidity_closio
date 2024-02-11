@@ -29,6 +29,8 @@ function OwnCSOLtoggleFree() {
 
     //Execution
     let toggleResult = await contractCSOL.toggleFree();
+    await toggleResult.wait();
+    
     if (toggleResult === true && freeStatus === true) {
       setMessage("Free Minting Enabled");
     } else if(toggleResult === true && freeStatus === false) {
