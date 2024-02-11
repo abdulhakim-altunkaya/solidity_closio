@@ -22,13 +22,13 @@ function CsolMint() {
     } catch (error) {
       // Check if the error contains the "transaction" field
       if (error.transaction && error.transaction.from) {
-        // Log the "from" field to the console
+        // Log the error.message field
         console.error('Error Message:', error.error.data.message);
         alert("Free minting failed");
         setMessage(error.error.data.message);
       } else {
-        // Log a message indicating that the "from" field is not available
-        console.error('Transaction Sender not available', error);
+        // Log all error message
+        console.error(error);
       }
     }
 

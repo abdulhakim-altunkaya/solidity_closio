@@ -7,22 +7,41 @@ function CsolBurn() {
   let [message, setMessage] = useState("");
 
   const burnToken = async () => {
-    let amount1 = parseInt(amount);
-    if (amount1 < 1 || amount1 === "") {
-      alert("please enter a valid amount");
-      return;
+    try {
+      //check: if user has metamask installed on browser
+      if(window.ethereum === "undefined") {
+        alert("Please install Metamask to your Browser");
+        return;
+      }
+      let amount1 = parseInt(amount);
+      if (amount1 < 1 || amount1 === "") {
+        alert("please enter a valid amount");
+        return;
+      }
+      let userBalance = await contractCSOL.getYourTokenBalance();
+      let userBalance2 = userBalance.toString();
+      let userBalance3 = parseInt(userBalance2);
+      if(userBalance3 < 1) {
+        alert("you dont have CSOL to burn");
+        return;
+      }
+      let burningTx = await contractCSOL.burnToken(amount1);
+      await burningTx.wait();
+      setMessage(`success, ${amount1} csol burned`);
+    } catch (error) {
+      // Check if the error contains the "transaction" field
+      if (error.transaction && error.transaction.from) {
+        // Log the error.message field
+        console.error('Error Message:', error.error.data.message);
+        //alert("Burning CSOL tokens failed. Make sure you logged in to the website with Metamask and have CSOL tokens to burn.");
+        setMessage(error.error.data.message);
+      } else {
+        // Log all error message
+        console.error(error);
+      }
     }
 
-    let userBalance = await contractCSOL.getYourTokenBalance();
-    let userBalance2 = userBalance.toString();
-    let userBalance3 = parseInt(userBalance2);
-    if(userBalance3 < 1) {
-      alert("you dont have CSOL to burn");
-      return;
-    }
-    let burningTx = await contractCSOL.burnToken(amount1);
-    await burningTx.wait();
-    setMessage(`success, ${amount1} csol burned`);
+
   }
 
   return (
