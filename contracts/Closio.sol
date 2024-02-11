@@ -23,9 +23,8 @@ contract Closio is Ownable, ReentrancyGuard {
     //We will use CSOL tokens as fee to deposit and withdraw other tokens from the contract.
     //For example, you want to deposit 100 SHIB? Then you first need to pay 1 CSOL token to the contract.
     IERC20 public tokenContractCSOL;
-    function setTokenCSOL(address _tokenAddressCSOL) external onlyOwner returns(bool) {
+    function setTokenCSOL(address _tokenAddressCSOL) external onlyOwner {
         tokenContractCSOL = IERC20(_tokenAddressCSOL);
-        return true;
     }
 
     //************SETTING POOL TOKEN: WETH************

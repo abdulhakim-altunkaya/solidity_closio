@@ -23,7 +23,7 @@ function OwnClosioSetFee() {
     //Security check 1: checking if owner and caller matches
     if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
       alert("you are not owner");
-      return;
+      return; 
     }
     //Security check 2: checking validity of amount input
     let amount1 = parseInt(amount);
