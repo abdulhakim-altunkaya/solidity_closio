@@ -21,7 +21,6 @@ function OwnClosioSetWETH() {
   let [message, setMessage] = useState("");
 
   const assignWeth = async () => {
-
     try {
       //Check 1: if user has metamask installed on browser
       if(window.ethereum === "undefined") {

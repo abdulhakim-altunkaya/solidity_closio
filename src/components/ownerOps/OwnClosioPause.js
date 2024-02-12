@@ -40,9 +40,9 @@ function OwnClosioPause() {
       } else if(contractStatus === false) {
         setMessage("  Contract unpaused");
       } else { 
-        alert("Status change failed. Error code: Closio contract togglePause function did not return true");
+        alert("Status change failed. Probably, Platform contract connection failed.");
       }    
-    } catch (error) {
+    } catch (error) { 
       // Check if the error contains the "transaction" field
       if (error.transaction && error.transaction.from) {
         // Log the error.message field
@@ -55,11 +55,8 @@ function OwnClosioPause() {
       }
     }
 
-
-
-
-
   }
+
   return (
     <div>
       <button className='button4' onClick={toggleContractStatus}>Pause</button> {message}
