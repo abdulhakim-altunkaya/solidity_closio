@@ -16,7 +16,6 @@ function WithdrawPart() {
 
   //fetching closio and csol contracts from zustand storage
   const contractClosio = useAccount(state => state.contractClosio2);
-  const contractCSOL = useAccount(state => state.contractCsol2);
 
   //variables
   let [privateWord, setPrivateWord] = useState("");
@@ -27,85 +26,82 @@ function WithdrawPart() {
 
   const withdrawPartly = async () => {
 
-    //Although input is already type=number, we again type-cast here to make sure
-    //operations wont give any error
-    let amount1 = parseInt(amount);
-
-    //check 1: if user has metamask installed on browser
-    if(window.ethereum === "undefined") {
-      alert("Please install Metamask to your Browser");
-      return;
-    }
-    
-    //check 2: if user has signed in or not
-    if (userAccount2 === "undefined" || userAccount2 === "") {
-      alert("Please sign in to website. Go to Token Operations section and click on Connect Metamask button.");
-      return;
-    }
-
-    //check 3: if private word or receiver input is empty
-    if(privateWord === "" || receiverAddress === "") {
-      alert("You cannot leave input areas empty");
-      return
-    }
-
-    //check 4: if receiver address is valid
-    if(receiverAddress.length < 39) {
-      alert("invalid address length");
-      return;
-    } else if(receiverAddress.slice(0, 2) !== "0x") {
-      alert("invalid hash");
-      return;
-    }
-
-    //check 5: if hash is valid
-    if(newHash.length < 64) {
-      alert("invalid hash length");
-      return;
-    } else if(newHash.slice(0, 2) !== "0x") {
-      alert("invalid hash");
-      return;
-    } else if(newHash === "") {
-      alert("new hash area cannot be empty");
-      return;
-    }
-
-    //check 6: if amount is valid
-    if(amount1 === "" || amount === "" ) {
-      alert("Amount area cannot be empty");
-      return;
-    }
-
-    //check 7: if amount is valid
-    if(amount1 < 0) {
-      alert("Amount cannot be less than 0");
-      return;
-    }
-
-    //check 8: if user has paid service fee
-    let feePaymentStatus = await contractClosio.feePayers(userAccount2);
-    if(feePaymentStatus === false) {
-      alert("You need to pay fee. Each time you call deposit, withdraw all or withdraw part functions, it will cost you 1 CSOL");
-      return;
-    }
-
-    //check 9: if system is paused
-    let isSystemPaused = await contractClosio.pauseContract();
-    if(isSystemPaused === true) {
-      alert("System has been paused by Owner. Contact him to unpause: drysoftware1@gmail.com");
-      return;
-    }
-
-    //execution
-    let exeResult = await contractClosio.withdrawPart(privateWord, newHash, receiverAddress, amount);
-
-    if(exeResult === false) {
-      alert("You probably entered one of your old private keyword or the amount you want to withdraw is bigger than your balance. Pay fee and call this function again");
-      return;
-    } else if (exeResult === true) {
+    try {
+      //Although input is already type=number, we again type-cast here to make sure
+      //operations wont give any error
+      let amount1 = parseInt(amount);
+      //check 1: if user has metamask installed on browser
+      if(window.ethereum === "undefined") {
+        alert("Please install Metamask to your Browser");
+        return;
+      }
+      //check 2: if user has signed in or not
+      if (userAccount2 === "undefined" || userAccount2 === "") {
+        alert("Please sign in to website. Go to Token Operations section and click on Connect Metamask button.");
+        return;
+      }
+      //check 3: if private word or receiver input is empty
+      if(privateWord === "" || receiverAddress === "") {
+        alert("You cannot leave input areas empty");
+        return
+      }
+      //check 4: if receiver address is valid
+      if(receiverAddress.length < 39) {
+        alert("invalid address length");
+        return;
+      } else if(receiverAddress.slice(0, 2) !== "0x") {
+        alert("invalid hash");
+        return;
+      }
+      //check 5: if hash is valid
+      if(newHash.length < 64) {
+        alert("invalid hash length");
+        return;
+      } else if(newHash.slice(0, 2) !== "0x") {
+        alert("invalid hash");
+        return;
+      } else if(newHash === "") {
+        alert("new hash area cannot be empty");
+        return;
+      }
+      //check 6: if amount is valid
+      if(amount1 === "" || amount === "" ) {
+        alert("Amount area cannot be empty");
+        return;
+      }
+      //check 7: if amount is valid
+      if(amount1 < 0) {
+        alert("Amount cannot be less than 0");
+        return;
+      }
+      //check 8: if user has paid service fee
+      let feePaymentStatus = await contractClosio.feePayers(userAccount2);
+      if(feePaymentStatus === false) {
+        alert("You need to pay fee. Each time you call deposit, withdraw all or withdraw part functions, it will cost you 1 CSOL");
+        return;
+      }
+      //check 9: if system is paused
+      let isSystemPaused = await contractClosio.pauseContract();
+      if(isSystemPaused === true) {
+        alert("System has been paused by Owner. Contact him to unpause: drysoftware1@gmail.com");
+        return;
+      }
+      //execution
+      let exeResult = await contractClosio.withdrawPart(privateWord, newHash, receiverAddress, amount);
+      await exeResult.wait();
       setMessage("Part Withdrawal is successful and Balance updated");
-    } 
-
+    } catch (error) {
+      // Check if the error contains the "transaction" field
+      if (error.transaction && error.transaction.from) {
+        // Log the error.message field
+        console.error('Error Message:', error.error.data.message);
+        alert("Part withdrawal failed. Check your new hash and private word of old hash. Refresh the website, check your connection and try again");
+        setMessage(error.error.data.message);
+      } else {
+        // Log all error message
+        console.error(error);
+      }    
+    }
   }
 
   return (
