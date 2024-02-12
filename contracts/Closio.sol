@@ -57,9 +57,8 @@ contract Closio is Ownable, ReentrancyGuard {
     //Fee will be in CSOL token. Current fee is 1 CSOL for each function call.
     //addresses paying fee, will be saved in a mapping and later this mapping will be checked
     //to see if fee is paid.
-    function setFee(uint _newFee) external onlyOwner returns(bool) {
+    function setFee(uint _newFee) external onlyOwner {
         fee = _newFee;
-        return true;
     }
 
     // account ---> contract (token transfer)
@@ -77,12 +76,11 @@ contract Closio is Ownable, ReentrancyGuard {
 
     // contract --> account
     // owner can collect CSOL tokens in the contract.
-    function collectFees() external onlyOwner returns(bool) {
+    function collectFees() external onlyOwner {
         uint balanceCSOL = tokenContractCSOL.balanceOf(address(this));
         require(balanceCSOL > 0, "There is no CSOL");
         tokenContractCSOL.transfer(msg.sender, balanceCSOL);
         emit WithdrawCSOL(msg.sender, uint(balanceCSOL/(10**18)));
-        return true;
     }
 
     /*
