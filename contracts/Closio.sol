@@ -35,9 +35,8 @@ contract Closio is Ownable, ReentrancyGuard {
     //This project is originally created for BSC and I know I should name it "WBNB" but I can 
     //deploy the project to other chains, that's why by convention I think it should be named WETH
     IERC20 public tokenContractWETH;
-    function setTokenWETH(address _tokenAddressWETH) external onlyOwner returns(bool) {
+    function setTokenWETH(address _tokenAddressWETH) external onlyOwner {
         tokenContractWETH = IERC20(_tokenAddressWETH);
-        return true;
     }
 
     //************STATE VARIABLES*************

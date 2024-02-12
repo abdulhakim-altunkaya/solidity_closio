@@ -21,30 +21,46 @@ function OwnClosioSetWETH() {
   let [message, setMessage] = useState("");
 
   const assignWeth = async () => {
-    //Security check 1: checking if owner and caller matches
-    if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
-      alert("you are not owner");
-      return;
-    }
-    //Security check 2: checking validity of address input
-    if(wethAddress.length < 20 || wethAddress === "") {
-      alert("Address is not correct");
-      return;
-    }
-    //Security check 3: checking validity of address input
-    if(wethAddress.slice(0,2) !== "0x") {
-      alert("Invalid address type");
-      return;
+
+    try {
+      //Check 1: if user has metamask installed on browser
+      if(window.ethereum === "undefined") {
+        alert("Please install Metamask to your Browser");
+        return;
+      }
+      //Check 2: checking if owner and caller matches
+      if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
+        alert("you are not owner");
+        return;
+      }
+      //Check 3: checking validity of address input
+      if(wethAddress.length < 20 || wethAddress === "") {
+        alert("Address is not correct");
+        return;
+      }
+      //Check 4: checking validity of address input
+      if(wethAddress.slice(0,2) !== "0x") {
+        alert("Invalid address type");
+        return;
+      }
+      //Execution
+      let setWETHresult = await contractClosio.setTokenWETH(wethAddress);
+      await setWETHresult.wait();
+      setMessage("WBNB address set");
+
+    } catch (error) {
+      // Check if the error contains the "transaction" field
+      if (error.transaction && error.transaction.from) {
+        // Log the error.message field
+        console.error('Error Message:', error.error.data.message);
+        alert("Setting Pool Token address failed");
+        setMessage(error.error.data.message);
+      } else {
+        // Log all error message
+        console.error(error);
+      }  
     }
 
-    //Execution
-    let setWETHresult = await contractClosio.setTokenWETH(wethAddress);
-    await setWETHresult.wait();
-    if (setWETHresult === true) {
-      setMessage("WBNB address set.");
-    } else {
-      alert("Setting WBNB address failed. Error code: Closio contract setTokenWETH function did not return true");
-    }
 
 
   }
