@@ -19,26 +19,40 @@ function OwnCSOLtoggleFree() {
   let [message, setMessage] = useState("");
 
   const toggleFreeMinting = async () => {
-    //Security check 1: checking if owner and caller matches
-    if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
-      alert("you are not owner");
-      return;
+    try {
+      //Check 1: if user has metamask installed on browser
+      if(window.ethereum === "undefined") {
+        alert("Please install Metamask to your Browser");
+        return;
+      }
+      //Check 2: checking if owner and caller matches
+      if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
+        alert("you are not owner");
+        return;
+      }   
+      let freeStatus = await contractCSOL.freeMinting();
+      //Execution
+      let toggleResult = await contractCSOL.toggleFree();
+      await toggleResult.wait();
+      if (freeStatus === true) {
+        setMessage("Free Minting Enabled");
+      } else if(freeStatus === false) {
+        setMessage("Free Minting Disabled");
+      } else {
+        alert("Toggle failed. Probably connection to Platform Contract failed")
+      }
+    } catch (error) {
+      // Check if the error contains the "transaction" field
+      if (error.transaction && error.transaction.from) {
+        // Log the error.message field
+        console.error('Error Message:', error.error.data.message);
+        alert("Toggling CSOL free mint failed");
+        setMessage(error.error.data.message);
+      } else {
+        // Log all error message
+        console.error(error);
+      }
     }
-
-    let freeStatus = await contractCSOL.freeMinting();
-
-    //Execution
-    let toggleResult = await contractCSOL.toggleFree();
-    await toggleResult.wait();
-    
-    if (toggleResult === true && freeStatus === true) {
-      setMessage("Free Minting Enabled");
-    } else if(toggleResult === true && freeStatus === false) {
-      setMessage("Free Minting Disabled");
-    } else {
-      alert("Toggle failed. Error code: CSOL contract toggleFree function returned false.")
-    }
-
   }
   return (
     <div>
