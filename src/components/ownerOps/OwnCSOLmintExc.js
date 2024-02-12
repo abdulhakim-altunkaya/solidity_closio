@@ -69,7 +69,7 @@ function OwnCSOLmintExc() {
         setMessage(error.error.data.message);
       } else {
         // Log all error message
-        console.error(error);
+        console.error(error); 
       }     
     }
 

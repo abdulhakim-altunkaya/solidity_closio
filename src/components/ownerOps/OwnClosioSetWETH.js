@@ -46,7 +46,6 @@ function OwnClosioSetWETH() {
       let setWETHresult = await contractClosio.setTokenWETH(wethAddress);
       await setWETHresult.wait();
       setMessage("WBNB address set");
-
     } catch (error) {
       // Check if the error contains the "transaction" field
       if (error.transaction && error.transaction.from) {

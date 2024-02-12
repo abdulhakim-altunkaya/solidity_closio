@@ -21,42 +21,56 @@ function OwnCSOLmintTre() {
   let [message, setMessage] = useState("");
 
   const mintTre = async () => {
-    //Security check 1: checking if owner and caller matches
-    if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
-      alert("you are not owner");
-      return;
-    }
-    //Security check 2: checking validity of amount input
-    let amount1 = parseInt(amount);
-    if (amount1 < 1 || amount1 === "") {
-      alert("Please enter a valid amount");
-      return;
-    }
-    //Security check 3: checking validity of address input
-    if(receiver.length < 20 || receiver === "") {
-      alert("Address is not correct");
-      return;
-    }
-    //Security check 4: checking validity of address input
-    if(receiver.slice(0,2) !== "0x") {
-      alert("Invalid address type");
-      return;
-    }
-    //Security check 5: checking if limit of treasury tokens reached (240 million)
-    let treTokens1 = await contractCSOL.treasuryTokens();
-    let treTokens2 = treTokens1.toString();
-    let treTokens3 = parseInt(treTokens2);
-    if(treTokens3 + amount1 > 240000000) {
-      alert("Limit of treasury tokens reached. You cannot mint more");
-      return;
-    }
-
-    //Execution
-    let mintResult = await contractCSOL.mintTreasury(amount1, receiver);
-    if (mintResult === true) {
+    try {
+      //Check 1: if user has metamask installed on browser
+      if(window.ethereum === "undefined") {
+        alert("Please install Metamask to your Browser");
+        return;
+      }
+      //Check 2: checking if owner and caller matches
+      if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
+        alert("you are not owner");
+        return;
+      }
+      //Check 3: checking validity of amount input
+      let amount1 = parseInt(amount);
+      if (amount1 < 1 || amount1 === "") {
+        alert("Please enter a valid amount");
+        return;
+      }
+      //Check 4: checking validity of address input
+      if(receiver.length < 20 || receiver === "") {
+        alert("Address is not correct");
+        return;
+      }
+      //Check 5: checking validity of address input
+      if(receiver.slice(0,2) !== "0x") {
+        alert("Invalid address type");
+        return;
+      }
+      //Check 6: checking if limit of treasury tokens reached (240 million)
+      let treTokens1 = await contractCSOL.treasuryTokens();
+      let treTokens2 = treTokens1.toString();
+      let treTokens3 = parseInt(treTokens2);
+      if(treTokens3 + amount1 > 240000000) {
+        alert("Limit of treasury tokens reached. You cannot mint more");
+        return;
+      }
+      //Execution
+      let mintResult = await contractCSOL.mintTreasury(amount1, receiver);
+      await mintResult.wait();
       setMessage("Minting successful");
-    } else {
-      alert("Minting failed. Error code: CSOL contract mintTreasury function returned false.")
+    } catch (error) {
+      // Check if the error contains the "transaction" field
+      if (error.transaction && error.transaction.from) {
+        // Log the error.message field
+        console.error('Error Message:', error.error.data.message);
+        alert("Minting for Treasury failed");
+        setMessage(error.error.data.message);
+      } else {
+        // Log all error message
+        console.error(error); 
+      }  
     }
 
   }
