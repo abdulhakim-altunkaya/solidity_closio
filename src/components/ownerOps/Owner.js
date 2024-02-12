@@ -5,6 +5,7 @@ import OwnCSOLmintTeam from "./OwnCSOLmintTeam";
 import OwnCSOLmintTre from "./OwnCSOLmintTre";
 import OwnCSOLtoggleFree from "./OwnCSOLtoggleFree";
 import OwnCSOLchange from "./OwnCSOLchange";
+import OwnClosioChange from "./OwnClosioChange";
 
 import OwnClosioSetWETH from "./OwnClosioSetWETH";
 import OwnClosioSetCSOL from "./OwnClosioSetCSOL";
@@ -44,6 +45,7 @@ function Owner() {
           <OwnCSOLmintTeam />
           <OwnCSOLtoggleFree />
           <OwnCSOLchange />
+          <OwnClosioChange />
 
           <OwnClosioSetCSOL />
           <OwnClosioSetWETH />
