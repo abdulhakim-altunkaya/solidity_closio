@@ -28,19 +28,16 @@ function WithdrawAll() {
       alert("Please install Metamask to your Browser");
       return;
     }
-    
     //check 2: if user has signed in or not
     if (userAccount2 === "undefined" || userAccount2 === "") {
       alert("Please sign in to website. Go to Token Operations section and click on Connect Metamask button.");
       return;
     }
-
     //check 3: if private word or receiver input is empty
     if(privateWord === "" || receiver === "") {
       alert("You cannot leave input areas empty");
       return
     }
-
     //check 4: if receiver address is valid
     if(receiver.length < 39) {
       alert("invalid address length");
@@ -49,33 +46,22 @@ function WithdrawAll() {
       alert("invalid hash");
       return;
     }
-
     //check 5: if user has paid service fee
     let feePaymentStatus = await contractClosio.feePayers(userAccount2);
     if(feePaymentStatus === false) {
       alert("You need to pay fee. Each time you call deposit, withdraw all or withdraw part functions, it will cost you 1 CSOL");
       return;
     }
-
     //check : if system is paused
     let isSystemPaused = await contractClosio.pauseContract();
     if(isSystemPaused === true) {
       alert("System has been paused by Owner. Contact him to unpause: drysoftware1@gmail.com");
       return;
-    }
-    
+    }   
     //execution
     let exeResult = await contractClosio.withdrawAll(privateWord, receiver);
-
-    if(exeResult === false) {
-      alert("You probably entered one of your old private keyword which does not have any value. Pay fee again and enter correct keyword");
-      return;
-    } else if (exeResult === true) {
-      setMessage("Balance withdrawal successful");
-    } else {
-      alert("Withdrawal failed, check your balance and call this function again.");
-      return;
-    }
+    await exeResult.wait();
+    setMessage("Balance withdrawal successful");
     
   }
   return (

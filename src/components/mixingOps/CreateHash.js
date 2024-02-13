@@ -18,20 +18,43 @@ function CreateHash() {
   let [message, setMessage] = useState("");
 
   const makeHash = async () => {
-    if(privateWord.length < 1 || privateWord.length > 1000) {
-      alert("Private word length must be: 1-1000 characters (security check 1)");
-      return;
+    try {
+        //check 1: if user has metamask installed on browser
+        if(window.ethereum === "undefined") {
+        alert("Please install Metamask to your Browser");
+        return;
+      }
+      //check 2: if user has signed in or not
+      if (userAccount2 === "undefined" || userAccount2 === "") {
+        alert("Please sign in to website. Go to Token Operations section and click on Connect Metamask button.");
+        return;
+      }
+      //check 3 and 4: private word input validations
+      if(privateWord.length < 1 || privateWord.length > 1000) {
+        alert("Private word length must be: 1-1000 characters (security check 1)");
+        return;
+      }
+      if(privateWord === "") {
+        alert("Enter something into the input field (security check 2)");
+        return;
+      }
+      let newHash = await contractClosio.createHashSalty(privateWord);
+      setMessage("The keccak256 hash of your private word is: ");
+      setHashOutput(newHash);
+
+    } catch (error) {
+      // Check if the error contains the "transaction" field
+      if (error.transaction && error.transaction.from) {
+        // Log the error.message field
+        console.error('Error Message:', error.error.data.message);
+        alert("Hash creation failed. Check your Metamask and internet connection, refresh the page and try again");
+        setMessage(error.error.data.message);
+      } else {
+        // Log all error message
+        console.error(error);
+      }
     }
-
-    if(privateWord === "") {
-      alert("Enter something into the input field (security check 2)");
-      return;
-    }
-
-    let newHash = await contractClosio.createHashSalty(privateWord);
-    setMessage("The keccak256 hash of your private word is: ");
-    setHashOutput(newHash);
-
+    
   }
 
   return (

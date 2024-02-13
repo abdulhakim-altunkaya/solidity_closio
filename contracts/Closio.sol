@@ -252,8 +252,7 @@ contract Closio is Ownable, ReentrancyGuard {
     }
 
     function withdrawPart(string calldata _privateWord, bytes32 _newHash, address _receiver, uint _amount) 
-    external nonReentrant isPaused hasPaid returns(bool) 
-    {
+    external nonReentrant isPaused hasPaid returns(bool) {
         //----VALIDATIONS 
         //Validations Input: private word length
         require(bytes(_privateWord).length > 0, "private word is not long enough");
@@ -356,6 +355,8 @@ contract Closio is Ownable, ReentrancyGuard {
     or false. For that reason, third "else" might get triggered and frontend might display an error message while the actual
     tx is still going on. 
 
+    //check how you can catch the "false" booleans in withdrawPart, withdrawAll and deposit functions. If you can, then you can
+    display a message on the frontend accordingly
     
     */
     
