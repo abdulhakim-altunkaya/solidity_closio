@@ -18,42 +18,51 @@ function GetBalances() {
   let [txFee, setTxFee] = useState("");
 
   const getBalances = async () => {
-    //check 1: if user has metamask installed on browser
-    if(window.ethereum === "undefined") {
-      alert("Please install Metamask to your Browser");
-      return;
+    try {
+      //check 1: if user has metamask installed on browser
+      if(window.ethereum === "undefined") {
+        alert("Please install Metamask to your Browser");
+        return;
+      }
+      
+      //fetching platform WBNB
+      let platformWBNB1 = await contractClosio.getContractWETHBalance();
+      let platformWBNB2 = platformWBNB1.toString();
+      let platformWBNB3 = parseInt(platformWBNB2);
+
+      //fetching allowance WBNB
+      let allowanceWETH1 = await contractClosio.getUserWETHApproval();
+      let allowanceWETH2 = allowanceWETH1.toString();
+      let allowanceWETH3 = parseInt(allowanceWETH2);
+
+      //fetching allowance CSOL
+      let allowanceCSOL1 = await contractClosio.getUserCSOLApproval();
+      let allowanceCSOL2 = allowanceCSOL1.toString();
+      let allowanceCSOL3 = parseInt(allowanceCSOL2);
+
+      //fetching platform fee
+      let platformFee1 = await contractClosio.fee();
+      let platformFee2 = platformFee1.toString();
+      let platformFee3 = parseInt(platformFee2);
+
+      
+      setBalanceWBNBplatform(platformWBNB3);
+      setApprovalWBNBuser(allowanceWETH3);
+      setApprovalCSOLuser(allowanceCSOL3);
+      setTxFee(platformFee3);
+
+    } catch (error) {
+      // Check if the error contains the "transaction" field
+      if (error.transaction && error.transaction.from) {
+        // Log the error.message field
+        console.error('Error Message:', error.error.data.message);
+        alert("Getting balances failed. Check your Metamask and internet connection, refresh the page and try again");
+        setMessage(error.error.data.message);
+      } else {
+        // Log all error message
+        console.error(error);
+      }
     }
-    //check 2: if user has signed in or not
-    if (userAccount2 === "undefined" || userAccount2 === "") {
-      alert("Please sign in to website. Go to Token Operations section and click on Connect Metamask button.");
-      return;
-    }
-
-    //fetching platform WBNB
-    let platformWBNB1 = await contractClosio.getContractWETHBalance();
-    let platformWBNB2 = platformWBNB1.toString();
-    let platformWBNB3 = parseInt(platformWBNB2);
-
-    //fetching allowance WBNB
-    let allowanceWETH1 = await contractClosio.getUserWETHApproval();
-    let allowanceWETH2 = allowanceWETH1.toString();
-    let allowanceWETH3 = parseInt(allowanceWETH2);
-
-    //fetching allowance CSOL
-    let allowanceCSOL1 = await contractClosio.getUserCSOLApproval();
-    let allowanceCSOL2 = allowanceCSOL1.toString();
-    let allowanceCSOL3 = parseInt(allowanceCSOL2);
-
-    //fetching platform fee
-    let platformFee1 = await contractClosio.fee();
-    let platformFee2 = platformFee1.toString();
-    let platformFee3 = parseInt(platformFee2);
-
-    
-    setBalanceWBNBplatform(platformWBNB3);
-    setApprovalWBNBuser(allowanceWETH3);
-    setApprovalCSOLuser(allowanceCSOL3);
-    setTxFee(platformFee3);
 
   }
 
