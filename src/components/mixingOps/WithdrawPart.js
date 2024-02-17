@@ -25,7 +25,6 @@ function WithdrawPart() {
   let [message, setMessage] = useState("");
 
   const withdrawPartly = async () => {
-
     try {
       //Although input is already type=number, we again type-cast here to make sure
       //operations wont give any error
@@ -87,15 +86,20 @@ function WithdrawPart() {
         return;
       }
       //execution
-      let exeResult = await contractClosio.withdrawPart(privateWord, newHash, receiverAddress, amount);
-      await exeResult.wait();
-      setMessage("Part Withdrawal is successful and Balance updated");
+      let tx = await contractClosio.withdrawPart(privateWord, newHash, receiverAddress, amount);
+      await tx.wait();
+      if(tx === false) {
+        alert("Part withdrawal failed because of one these reasons:\n 1) Wrong private word\n 2) 0 balance\n 3) Wrong hash: Create another hash.\n 4) What is left is very little to redeposit. Withdraw it all instead of withdrawing partly.\n 5) Maybe the amount you want to withdraw is bigger than your balance.\n Then pay fee and try again");
+        return;
+      } else {
+        setMessage("Part Withdrawal is successful and Balance updated");
+      }
     } catch (error) {
       // Check if the error contains the "transaction" field
       if (error.transaction && error.transaction.from) {
         // Log the error.message field
         console.error('Error Message:', error.error.data.message);
-        alert("Part withdrawal failed. Check your new hash and private word of old hash. Refresh the website, check your connection and try again");
+        alert("READ MESSAGE UNDER THE BUTTONS. Part withdrawal failed because of one these reasons:\n 1) Wrong private word\n 2) 0 balance\n 3) Wrong hash: Create another hash.\n 4) What is left is very little to redeposit. Withdraw it all instead of withdrawing partly.\n 5) Maybe the amount you want to withdraw is bigger than your balance.\n Then pay fee and try again");
         setMessage(error.error.data.message);
       } else {
         // Log all error message

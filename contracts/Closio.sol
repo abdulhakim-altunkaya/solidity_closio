@@ -287,17 +287,17 @@ contract Closio is Ownable, ReentrancyGuard {
         if(amount > balanceFinal) {
             return false;
         }
+        //redepositing the amount left
+        uint amountLeft = balanceFinal - amount;
+        if(amountLeft < 1/10000) {
+            return false;
+        }
+        //Execution Part 1: Transfer
         // Set the balance associated with the hash to 0
         balances[balanceHash] = 0;
         //transfer the tokens to the receiver address
         tokenContractWETH.transfer(_receiver, amount);
-
-        //redepositing the amount left
-        uint amountLeft = balanceFinal - amount;
-        if(amountLeft < 1) {
-            return false;
-        }
-        
+        //Execution Part 2: Redepositing
         bytes32 newHash = keccak256(abi.encodePacked(_newHash, uint(1 ether)));
         balances[newHash] = amountLeft;
         balanceIds.push(newHash);
