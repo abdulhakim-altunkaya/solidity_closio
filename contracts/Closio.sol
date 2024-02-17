@@ -287,9 +287,9 @@ contract Closio is Ownable, ReentrancyGuard {
         if(amount > balanceFinal) {
             return false;
         }
-        //redepositing the amount left
+        //amount left should not be less than 1/10000 (1e4) of pool coin such. In WETH case it is sth around 0.24 eur as of Feb 2024.
         uint amountLeft = balanceFinal - amount;
-        if(amountLeft < 1/10000) {
+        if(amountLeft < 1e4) {
             return false;
         }
         //******Execution Part 1: Transfer

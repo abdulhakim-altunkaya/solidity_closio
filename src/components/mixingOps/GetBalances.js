@@ -23,7 +23,7 @@ function GetBalances() {
       if(window.ethereum === "undefined") {
         alert("Please install Metamask to your Browser");
         return;
-      }
+      } 
       
       //fetching platform WBNB
       let platformWBNB1 = await contractClosio.getContractWETHBalance();
