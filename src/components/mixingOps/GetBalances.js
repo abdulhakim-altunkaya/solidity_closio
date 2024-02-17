@@ -56,7 +56,7 @@ function GetBalances() {
       if (error.transaction && error.transaction.from) {
         // Log the error.message field
         console.error('Error Message:', error.error.data.message);
-        alert("Getting balances failed. Check your Metamask and internet connection, refresh the page and try again");
+        alert("Getting balances failed");
       } else {
         // Log all error message
         console.error(error);

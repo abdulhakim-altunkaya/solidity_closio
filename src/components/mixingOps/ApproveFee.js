@@ -45,7 +45,7 @@ function ApproveFee() {
       if (error.transaction && error.transaction.from) {
         // Log the error.message field
         console.error('Error Message:', error.error.data.message);
-        alert("Fee Approval Failed. Refresh the website, check your connection and try again");
+        alert("Fee Approval Failed");
         setMessage(error.error.data.message);
       } else {
         // Log all error message

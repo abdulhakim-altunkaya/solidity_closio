@@ -72,7 +72,7 @@ function WithdrawAll() {
       if (error.transaction && error.transaction.from) {
         // Log the error.message field
         console.error('Error Message:', error.error.data.message);
-        alert("Withdraw All balance failed. Check your private word. Check your Metamask and internet connection, refresh the page and try again");
+        alert("Withdraw All balance failed");
         setMessage(error.error.data.message);
       } else {
         // Log all error message

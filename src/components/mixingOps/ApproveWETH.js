@@ -17,39 +17,49 @@ function ApproveWETH() {
   let [message, setMessage] = useState("");
 
   const approveWETH = async () => {
-    
-    //check 1: if user has metamask installed on browser
-    if(window.ethereum === "undefined") {
-      alert("Please install Metamask to your Browser");
-      return;
-    }
-    
-    //check 2: if user has signed in or not
-    if (userAccount2 === "undefined" || userAccount2 === "") {
-      alert("Please sign in to website. Go to Token Operations section and click on Connect Metamask button.");
-      return;
+    try {
+      //check 1: if user has metamask installed on browser
+      if(window.ethereum === "undefined") {
+        alert("Please install Metamask to your Browser");
+        return;
+      }
+      //check 2: if user has signed in or not
+      if (userAccount2 === "undefined" || userAccount2 === "") {
+        alert("Please sign in to website. Go to Token Operations section and click on Connect Metamask button.");
+        return;
+      }
+      //check 3: if amount is bigger than 0
+      if (amount === "" || amount <= 0 ) {
+        alert("Invalid amount");
+        return; 
+      }
+      //check 4: if user has WETH
+      let userBalanceWETH1 = await contractClosio.getYourWETHBalance();
+      let userBalanceWETH2 = userBalanceWETH1.toString();
+      let userBalanceWETH3 = parseInt(userBalanceWETH2);
+      if(userBalanceWETH3 <= 0) {
+        alert("You dont have WBNB to approve");
+        return;
+      }
+      //execution
+      let amount1 = parseInt(amount);
+      let tx = await contractClosio.approveClosioWeth(amount1);
+      await tx.wait();
+      console.log(tx);
+      setMessage(`Success, approval amount: ${amount1}`);
+    } catch (error) {
+      // Check if the error contains the "transaction" field
+      if (error.transaction && error.transaction.from) {
+        // Log the error.message field
+        console.error('Error Message:', error.error.data.message);
+        alert("Approval Failed");
+        setMessage(error.error.data.message);
+      } else {
+        // Log all error message
+        console.error(error);
+      }
     }
 
-    //check 3: if amount is bigger than 0
-    if (amount === "" || amount <= 0 ) {
-      alert("Invalid WBNB amount");
-      return;
-    }
-    
-    //check 4: if user has WETH
-    let userBalanceWETH1 = await contractClosio.getYourWETHBalance();
-    let userBalanceWETH2 = userBalanceWETH1.toString();
-    let userBalanceWETH3 = parseInt(userBalanceWETH2);
-    if(userBalanceWETH3 <= 0) {
-      alert("You dont have WBNB to approve");
-      return;
-    }
-
-    //execution
-    let amount1 = parseInt(amount);
-    await contractClosio.approveClosioWeth(amount1);
-    setMessage(`Success, approval amount: ${amount1} WETH`);
-    
   }
 
   return (
