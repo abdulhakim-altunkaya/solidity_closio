@@ -97,7 +97,7 @@ contract Closio is Ownable, ReentrancyGuard {
         tokenContractWETH.transfer(_receiver, _amount*(10**18));
         emit WithdrawPool(_receiver, uint(_amount*(10**18)));
     }
-    */
+    */ 
 
     //************SECURITY CHECKS*************
     //CHECK 1: PAUSE CONTRACT
@@ -185,7 +185,7 @@ contract Closio is Ownable, ReentrancyGuard {
     // 5) transfer the WETH amoun to this contract by calling deposit function below.
     //depositor will first need to convert his private word to a keccak256 has either by using this 
     //website or by using another service. In fact, people will be encouraged to use other websites. 
-    function deposit(bytes32 _hash, uint _amount) external isPaused hasPaid nonReentrant returns(string memory) {
+    function deposit(bytes32 _hash, uint _amount) external isPaused hasPaid nonReentrant returns(bool) {
         //VALIDATIONS
         //Validations Input: amount if valid
         require(_amount > 0, "_amount must be bigger than 0");
@@ -194,7 +194,6 @@ contract Closio is Ownable, ReentrancyGuard {
         //Validations msg.sender
         require(msg.sender == tx.origin, "contract cannot call this function");
         require(msg.sender != address(0), "real addresses can call withdraw");
-
         //----RESETTING SERVICE FEE
         //resetting service fee. Each function call will cost
         feePayers[msg.sender] = false;
@@ -206,17 +205,15 @@ contract Closio is Ownable, ReentrancyGuard {
         //his private word a few times. I am throwing this return message to confuse the spammer.
         bool isExisting = checkHash(_hash);
         if(isExisting == true) {
-            return "insufficientWethBalance";
+            return false;
         }
-
         bytes32 _newHash = keccak256(abi.encodePacked(_hash, uint(1 ether)));
         uint amount = _amount * (10**18);
-
         //main execution (assuming approval is already done)
         tokenContractWETH.transferFrom(msg.sender, address(this), amount);
         balanceIds.push(_newHash);
         balances[_newHash] = amount;
-        return "success";
+        return true;
     }
 
     function withdrawAll(string calldata _privateWord, address _receiver) external nonReentrant isPaused hasPaid returns(bool) {
