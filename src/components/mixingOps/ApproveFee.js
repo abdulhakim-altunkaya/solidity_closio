@@ -56,7 +56,7 @@ function ApproveFee() {
 
   return (
     <div>
-        <button className='button10' onClick={approveCsol}>Approve CSOL</button> {message}
+        <button className='button10' onClick={approveCsol}>Approve CSOL</button>&nbsp;&nbsp;{message}
     </div>
   )
 }

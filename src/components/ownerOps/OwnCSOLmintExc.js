@@ -20,6 +20,8 @@ function OwnCSOLmintExc() {
   let [receiver, setReceiver] = useState("");
   let [message, setMessage] = useState("");
 
+  let [displayMessage, setDisplayMessage] = useState(false);
+
   const mintExc = async () => {
     try {
       //Check 1: if user has metamask installed on browser
@@ -59,6 +61,7 @@ function OwnCSOLmintExc() {
       //Execution
       let mintResult = await contractCSOL.mintExchanges(amount1, receiver);
       await mintResult.wait();
+      setDisplayMessage(true);
       setMessage("Minting for exchanges successful");    
     } catch (error) {
       // Check if the error contains the "transaction" field
@@ -66,6 +69,7 @@ function OwnCSOLmintExc() {
         // Log the error.message field
         console.error('Error Message:', error.error.data.message);
         alert("Minting for Exchanges failed");
+        setDisplayMessage(true);
         setMessage(error.error.data.message);
       } else {
         // Log all error message
@@ -81,8 +85,9 @@ function OwnCSOLmintExc() {
       <input type='number' className='inputFields' placeholder='amount' 
         value={amount} onChange={ e => setAmount(e.target.value)} />
       <input type='text' className='inputFields' placeholder='receiver address'
-        value={receiver} onChange={ e => setReceiver(e.target.value)} /><br />
-      {message}
+        value={receiver} onChange={ e => setReceiver(e.target.value)} />
+      {displayMessage === true ? <p className='messageDiv'>{message}</p> : ""}
+      
     </div>
   )
 }

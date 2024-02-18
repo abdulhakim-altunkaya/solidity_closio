@@ -30,10 +30,11 @@ function OwnCSOLtoggleFree() {
         alert("you are not owner");
         return;
       }   
-      let freeStatus = await contractCSOL.freeMinting();
+      
       //Execution
       let toggleResult = await contractCSOL.toggleFree();
       await toggleResult.wait();
+      let freeStatus = await contractCSOL.freeMinting();
       if (freeStatus === true) {
         setMessage("Free Minting Enabled");
       } else if(freeStatus === false) {
@@ -56,7 +57,7 @@ function OwnCSOLtoggleFree() {
   }
   return (
     <div>
-      <button className='button4' id='buttonLength' onClick={toggleFreeMinting}>Csol Toggle Free</button> {message}
+      <button className='button4' id='buttonLength' onClick={toggleFreeMinting}>Csol Toggle Free</button>&nbsp;&nbsp;{message}
     </div>
   )
 }

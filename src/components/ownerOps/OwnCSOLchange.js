@@ -46,7 +46,6 @@ function OwnCSOLchange() {
       let ownerChangeVar = await contractCSOL.transferOwnership(newOwner);
       await ownerChangeVar.wait(); 
       setMessage("Owner CSOL changed");
-
     } catch (error) {
       // Check if the error contains the "transaction" field
       if (error.transaction && error.transaction.from) {
@@ -59,8 +58,6 @@ function OwnCSOLchange() {
         console.error(error);
       }  
     }
-
-
 
   }
   return (

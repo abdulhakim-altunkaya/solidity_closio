@@ -36,9 +36,9 @@ function OwnClosioPause() {
       await toggleResult.wait();
       let contractStatus = await contractClosio.pauseContract();
       if (contractStatus === true) { 
-        setMessage("  Contract paused");
+        setMessage("Contract paused");
       } else if(contractStatus === false) {
-        setMessage("  Contract unpaused");
+        setMessage("Contract unpaused");
       } else { 
         alert("Status change failed. Probably, Platform contract connection failed.");
       }    
@@ -59,7 +59,7 @@ function OwnClosioPause() {
 
   return (
     <div>
-      <button className='button4' onClick={toggleContractStatus}>Pause</button> {message}
+      <button className='button4' onClick={toggleContractStatus}>Pause</button>&nbsp;&nbsp;{message}
     </div>
   )
 }

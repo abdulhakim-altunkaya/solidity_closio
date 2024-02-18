@@ -52,7 +52,7 @@ function OwnClosioGetFees() {
   }
   return (
     <div>
-      <button className='button4' onClick={collectAllFees}>Collect Fees</button> {message}
+      <button className='button4' onClick={collectAllFees}>Collect Fees</button>&nbsp;&nbsp;{message}
     </div>
   )
 }

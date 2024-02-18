@@ -727,13 +727,7 @@ export const ABICsol = [
   {
     "inputs": [],
     "name": "toggleFree",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

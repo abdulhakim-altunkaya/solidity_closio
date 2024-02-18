@@ -16,6 +16,7 @@ function CreateHash() {
   let [privateWord, setPrivateWord] = useState("");
   let [hashOutput, setHashOutput] = useState("");
   let [message, setMessage] = useState("");
+  let [displayMessage, setDisplayMessage] = useState(false);
 
   const makeHash = async () => {
     try {
@@ -30,15 +31,16 @@ function CreateHash() {
         return;
       }
       //check 3 and 4: private word input validations
-      if(privateWord.length < 1 || privateWord.length > 1000) {
-        alert("Private word length must be: 1-1000 characters (security check 1)");
+      if(privateWord.length < 3 || privateWord.length > 1000) {
+        alert("Private word length must be: 3-1000 characters");
         return;
       }
       if(privateWord === "") {
-        alert("Enter something into the input field (security check 2)");
+        alert("Enter something into the input field");
         return;
       }
       let newHash = await contractClosio.createHashSalty(privateWord);
+      setDisplayMessage(true);
       setMessage("The keccak256 hash of your private word is: ");
       setHashOutput(newHash);
 
@@ -48,6 +50,7 @@ function CreateHash() {
         // Log the error.message field
         console.error('Error Message:', error.error.data.message);
         alert("Hash creation failed");
+        setDisplayMessage(true);
         setMessage(error.error.data.message);
       } else {
         // Log all error message
@@ -62,9 +65,8 @@ function CreateHash() {
       <br/>
       <button className='button10' onClick={makeHash}>Create a Hash</button>
       <input type='text' className='inputFields' placeholder='private keyword'
-        value={privateWord} onChange={e => setPrivateWord(e.target.value)} /> <br/>
-      {message} <br/>
-      {hashOutput}
+        value={privateWord} onChange={e => setPrivateWord(e.target.value)} /> 
+      {displayMessage ? <p className='messageDiv'>{message} <br/> {hashOutput}</p> : ""}
     </div>
   )
 }

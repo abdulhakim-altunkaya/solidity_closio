@@ -15,9 +15,9 @@ function CsolMint() {
         alert("Please install Metamask to your Browser");
         return;
       }
-      let status = await contractCSOL.mintFree();
-      status.wait();
-      setMessage("success, you minted 2 tokens");
+      let tx = await contractCSOL.mintFree();
+      await tx.wait();
+      setMessage("Success, you minted 2 tokens");
 
     } catch (error) {
       // Check if the error contains the "transaction" field
@@ -36,7 +36,7 @@ function CsolMint() {
 
   return (
     <div>
-      <button className='button4' onClick={mintToken}>Mint CSOL</button>&nbsp; {message}
+      <button className='button4' onClick={mintToken}>Mint CSOL</button>&nbsp;&nbsp; {message}
     </div>
   )
 }

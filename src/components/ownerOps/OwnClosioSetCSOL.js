@@ -29,7 +29,7 @@ function OwnClosioSetCSOL() {
       }
       //Check 2: checking if owner and caller matches
       if (userAccount2.toLowerCase() !== AddressOwner.toLowerCase()) {
-        alert("you are not owner");
+        alert("You are not owner");
         return;
       }
       //Check 3: checking validity of address input

@@ -1,1 +1,1 @@
-export const AddressClosio = "0xDf7AF8217169e8C65A0a40124B10e13A885cc449" 
+export const AddressClosio = "0x50ae8Eba7Ce032566cC09bE26597Ea45c4f8aab6" 

@@ -15,19 +15,22 @@ function CsolBurn() {
       }
       let amount1 = parseInt(amount);
       if (amount1 < 1 || amount1 === "") {
-        alert("please enter a valid amount");
+        alert("Please enter a valid amount");
         return;
       }
       let userBalance = await contractCSOL.getYourTokenBalance();
       let userBalance2 = userBalance.toString();
       let userBalance3 = parseInt(userBalance2);
       if(userBalance3 < 1) {
-        alert("you dont have CSOL to burn");
+        alert("You do not have CSOL to burn");
+        return;
+      } else if(userBalance3 - amount1 < 0) {
+        alert("Invalid amount. You cannot burn more than you have.");
         return;
       }
-      let burningTx = await contractCSOL.burnToken(amount1);
-      await burningTx.wait();
-      setMessage(`success, ${amount1} csol burned`);
+      let tx = await contractCSOL.burnToken(amount1);
+      await tx.wait();
+      setMessage(`Success, ${amount1} CSOL burned`);
     } catch (error) {
       // Check if the error contains the "transaction" field
       if (error.transaction && error.transaction.from) {
