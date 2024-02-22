@@ -4,14 +4,28 @@ pragma solidity ^0.8.20;
 
 //inheriting IERC20 interface to use "CSOL" token in closio functions
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract Closio is Ownable, ReentrancyGuard {
+contract Closio is ReentrancyGuard {
 
-    constructor() Ownable(msg.sender) {
-        //This constructor is only to overcome setting initial owner error while compiling.
-        //I think it is related to BNB Blockchain. Other chains work fine as far as I know.
+    //OWNER BLOCK
+    //Scan website and hardhat compiles the same contract differently. One of them requires
+    //the initiation of Ownable contract in constructor area, the other gives error if I do so.
+    //To overcome this issue and not lose more time I am creating my own owner logic down.
+    address public owner;
+    error NotOwner(string message, address caller);
+    modifier onlyOwner() {
+        if(msg.sender != owner) {
+            revert NotOwner("You are not owner", msg.sender);
+        }
+        _;
+    }
+    function transferOwnership(address _newOwner) external onlyOwner{
+        owner = _newOwner;
+    }
+
+    constructor() {
+        owner = msg.sender;
     }
     
     //events will emitted when people deposit/withdraw CSOL tokens for anonymous tx
@@ -104,7 +118,7 @@ contract Closio is Ownable, ReentrancyGuard {
     error Stopped(string message, address owner);
     modifier isPaused() {
         if (pauseContract == true) {
-            revert Stopped("Contract paused, contact owner: ", owner());
+            revert Stopped("Contract paused, contact owner: ", owner);
         }
         _;
     }

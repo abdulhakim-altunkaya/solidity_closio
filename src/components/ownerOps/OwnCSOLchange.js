@@ -64,8 +64,7 @@ function OwnCSOLchange() {
     <div>
       <button className='button4' id='buttonLength' onClick={changeOwner}>Csol Change Owner</button>
       <input type='text' className='inputFields' placeholder='new owner address'
-        value={newOwner} onChange={ e => setNewOwner(e.target.value)} /><br />
-      {message}
+        value={newOwner} onChange={ e => setNewOwner(e.target.value)} />&nbsp;&nbsp;{message}
     </div>
   )
 }

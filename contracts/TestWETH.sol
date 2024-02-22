@@ -4,12 +4,11 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 //No flavor of uint will be used. The deployment cost and function call cost of using different uints are minimal for this project.
 //For this reason, it will be only uint (uint256). This will help with readability and security
 
-contract TestWETH is ERC20Capped, Ownable {
+contract TestWETH is ERC20Capped {
 
     //events for token minting and burning
     event TokenMintedTeam(address minter, uint amount);
@@ -19,12 +18,29 @@ contract TestWETH is ERC20Capped, Ownable {
     event TokenMintedTreasury(address minter, uint amount);
     event TokenBurned(address burner, uint amount);
 
+    //OWNER BLOCK
+    //Scan website and hardhat compiles the same contract differently. One of them requires
+    //the initiation of Ownable contract in constructor area, the other gives error if I do so.
+    //To overcome this issue and not lose more time I am creating my own owner logic down.
+    address public owner;
+    error NotOwner(string message, address caller);
+    modifier onlyOwner() {
+        if(msg.sender != owner) {
+            revert NotOwner("You are not owner", msg.sender);
+        }
+        _;
+    }
+    function transferOwnership(address _newOwner) external onlyOwner{
+        owner = _newOwner;
+    }
+
+
     //creating token based on lazy minting capped model
     //cap will be set to 1.000.000.000 (1 billion)
     //10% early investors, 60% exchanges, 5% developers, 1% free giving, 24% Treasury(grants, projects, etc)
-    constructor(uint _cap) ERC20("testweth", "TWETH") ERC20Capped(_cap*(10**18)) Ownable(msg.sender) {
+    constructor(uint _cap) ERC20("testweth", "TWETH") ERC20Capped(_cap*(10**18)) {
+        owner = msg.sender;
     }
-    
     uint public cooldown = 1;//random value to initiate cooldown. Actual value will come later once we call important function. 
 
     //100 millions tokens will be for early investors, 10% of total cap

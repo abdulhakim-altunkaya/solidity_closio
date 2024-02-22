@@ -1,4 +1,4 @@
-export const ABIClosio = [
+export const ABIClosio =  [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
