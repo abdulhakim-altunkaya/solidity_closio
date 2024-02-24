@@ -154,6 +154,3 @@ contract CSOL is ERC20Capped {
     }
 
 }
-
-//Maybe event display on the frontend
-//Put owner address as dynamic data to redux or zustand. 

@@ -126,23 +126,17 @@ export const ABICsol = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnableInvalidOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [
+        "internalType": "string",
+        "name": "message",
+        "type": "string"
+      },
       {
         "internalType": "address",
-        "name": "account",
+        "name": "caller",
         "type": "address"
       }
     ],
-    "name": "OwnableUnauthorizedAccount",
+    "name": "NotOwner",
     "type": "error"
   },
   {
@@ -168,25 +162,6 @@ export const ABICsol = [
       }
     ],
     "name": "Approval",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
     "type": "event"
   },
   {
@@ -693,13 +668,6 @@ export const ABICsol = [
   },
   {
     "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "symbol",
     "outputs": [
       {
@@ -801,7 +769,7 @@ export const ABICsol = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "newOwner",
+        "name": "_newOwner",
         "type": "address"
       }
     ],
