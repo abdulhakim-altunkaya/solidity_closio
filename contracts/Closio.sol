@@ -160,7 +160,7 @@ contract Closio is ReentrancyGuard {
         }
         _;
     }
-
+ 
 
     /* HASH CREATION AND COMPARISON FUNCTIONS
     1)Function to create a hash. Users can use createHashSalty function to create a hash. Or they can copy
@@ -334,10 +334,9 @@ contract Closio is ReentrancyGuard {
     function approveClosioWeth(uint _amount) external returns(bool) {
         require(_amount > 0, "approve amount must be greater than 0");
         uint amount = _amount*(10**18);
-        bool approveResult = tokenContractWETH.approve(address(this), amount);
-        return approveResult;
+        tokenContractWETH.approve(address(this), amount);
     }
-
+ 
     receive() external payable {}
     fallback() external payable {}
 }

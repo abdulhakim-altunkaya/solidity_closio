@@ -27,7 +27,7 @@ function ApproveFee() {
       if (userAccount2 === "undefined" || userAccount2 === "") {
         alert("Please sign in to website. Go to Token Operations section and click on Connect Metamask button.");
         return;
-      }
+      } 
       //check 3: if user has CSOL
       let userBalanceCSOL1 = await contractCSOL.getYourTokenBalance();
       let userBalanceCSOL2 = userBalanceCSOL1.toString();
@@ -37,8 +37,8 @@ function ApproveFee() {
         return;
       }
       //execution
-      let resultApprove = await contractCSOL.approveClosioCsol(AddressClosio, 10);
-      await resultApprove.wait();
+      let tx = await contractCSOL.approveClosioCsol(AddressClosio, 10); 
+      await tx.wait();
       setMessage(`Success, approval amount: 10 CSOL`); 
     } catch (error) {
       // Check if the error contains the "transaction" field

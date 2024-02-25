@@ -20,13 +20,12 @@ contract TestWETH is ERC20Capped {
 
     //OWNER BLOCK
     //Scan website and hardhat compiles the same contract differently. One of them requires
-    //the initiation of Ownable contract in constructor area, the other gives error if I do so.
+    //the initiation of Ownable contract in constructor area, and hardhat gives error if I do so.
     //To overcome this issue and not lose more time I am creating my own owner logic down.
     address public owner;
-    error NotOwner(string message, address caller);
     modifier onlyOwner() {
         if(msg.sender != owner) {
-            revert NotOwner("You are not owner", msg.sender);
+            revert("You are not owner");
         }
         _;
     }

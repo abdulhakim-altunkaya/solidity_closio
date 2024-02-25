@@ -16,7 +16,7 @@ function PayFee() {
     try {
       //check 1: if user has metamask installed on browser
       if(window.ethereum === "undefined") {
-        alert("Please install Metamask to your Browser");
+        alert("Please install Metamask to your Browser"); 
         return;
       }
       //check 2: if user has signed in or not

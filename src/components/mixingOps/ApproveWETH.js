@@ -44,6 +44,7 @@ function ApproveWETH() {
       //execution
       let amount1 = parseInt(amount);
       let tx = await contractClosio.approveClosioWeth(amount1);
+      
       await tx.wait();
       console.log(tx);
       setMessage(`Success, approval amount: ${amount1}`);
@@ -64,7 +65,7 @@ function ApproveWETH() {
 
   return (
     <div>
-        <button className='button10' onClick={approveWETH}>Approve WETH</button> 
+        <button className='button10' onClick={approveWETH}>Approve WBNB</button> 
         <input type="number" className='inputFields' placeholder='WBNB amount'
           value={amount} onChange={ e => setAmount(e.target.value)} /> {message}
     </div>
