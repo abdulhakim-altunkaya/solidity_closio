@@ -331,7 +331,7 @@ contract Closio is ReentrancyGuard {
         return tokenContractCSOL.allowance(msg.sender, address(this)) / (10**18);
     }
     //approve closio contract before sending WETH tokens to it
-    function approveClosioWeth(uint _amount) external returns(bool) {
+    function approveClosioWeth(uint _amount) external {
         require(_amount > 0, "approve amount must be greater than 0");
         uint amount = _amount*(10**18);
         tokenContractWETH.approve(address(this), amount);

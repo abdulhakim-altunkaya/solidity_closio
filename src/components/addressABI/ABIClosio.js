@@ -127,13 +127,7 @@ export const ABIClosio =  [
       }
     ],
     "name": "approveClosioWeth",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

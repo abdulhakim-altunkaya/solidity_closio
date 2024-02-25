@@ -16,5 +16,9 @@ module.exports = {
       url: process.env.PROVIDER_URL,
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
+    fantomtest: {
+      url: process.env.PROVIDER_URL_3,
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
+    },
   }
 };
