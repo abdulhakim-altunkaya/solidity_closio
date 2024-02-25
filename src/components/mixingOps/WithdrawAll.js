@@ -3,7 +3,6 @@ import React, {useState} from 'react';
 import { useSelector } from "react-redux";
 //getting contract from zustand store
 import { useAccount } from '../../Store';
-import { AddressClosio } from "../addressABI/addressClosio";
 
 import { useMediaQuery } from 'react-responsive';
 
