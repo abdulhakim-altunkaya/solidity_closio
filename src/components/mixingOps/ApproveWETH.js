@@ -1,8 +1,12 @@
 import React, {useState} from 'react';
+//importing ethers package to add 18 zeros to the input amount
+import { ethers } from "ethers";
 //getting user account info from redux storage
 import { useSelector } from "react-redux";
 //getting contract from zustand store
 import { useAccount } from '../../Store';
+//fetching WETH address from project directory
+import { AddressClosio } from "../addressABI/addressClosio";
 
 function ApproveWETH() {
 
@@ -12,6 +16,7 @@ function ApproveWETH() {
   //fetching closio and csol contracts from zustand storage
   const contractClosio = useAccount(state => state.contractClosio2);
   const contractCSOL = useAccount(state => state.contractCsol2);
+  const contractWETH = useAccount(state => state.contractWETH2);
 
   let [amount, setAmount] = useState("");
   let [message, setMessage] = useState("");
@@ -43,10 +48,9 @@ function ApproveWETH() {
       }
       //execution
       let amount1 = parseInt(amount);
-      let tx = await contractClosio.approveClosioWeth(amount1);
-      
+      let amount2 = ethers.utils.parseUnits(amount1.toString(), 18);
+      let tx = await contractWETH.approve(AddressClosio, amount2);
       await tx.wait();
-      console.log(tx);
       setMessage(`Success, approval amount: ${amount1}`);
     } catch (error) {
       // Check if the error contains the "transaction" field

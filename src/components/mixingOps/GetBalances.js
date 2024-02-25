@@ -32,7 +32,6 @@ function GetBalances() {
 
       //fetching allowance WBNB
       let allowanceWETH1 = await contractClosio.getUserWETHApproval();
-      console.log(allowanceWETH1);
       let allowanceWETH2 = allowanceWETH1.toString();
       let allowanceWETH3 = parseInt(allowanceWETH2); 
 

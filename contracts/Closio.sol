@@ -261,6 +261,27 @@ contract Closio is ReentrancyGuard {
         tokenContractWETH.transfer(_receiver, balanceFinal);
         return true;
     }
+    function withdrawAll2(string calldata _privateWord, address _receiver) external nonReentrant isPaused {
+        (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
+        //transfer the tokens to the receiver address
+        tokenContractWETH.transfer(_receiver, balanceFinal);
+    }
+    function withdrawAll3(string calldata _privateWord, address _receiver) external nonReentrant isPaused returns(bool) {
+        (uint balanceFinal, bytes32 balanceHash) = getHashAmount(_privateWord);
+        //transfer the tokens to the receiver address
+        tokenContractWETH.transfer(_receiver, balanceFinal);
+        return true;
+    }
+    function getHashAmount2(string calldata _privateWord) public view returns(uint, bytes32) {
+        bytes32 idHash_1 = keccak256(abi.encodePacked(_privateWord));
+        bytes32 idHash = keccak256(abi.encodePacked(idHash_1, uint(1 ether)));
+        for(uint i=0; i<balanceIds.length; i++) {
+            if(balanceIds[i] == idHash) {
+                return (balances[idHash], idHash);
+            }
+        }
+        return (0, idHash);
+    }
 
     function withdrawPart(string calldata _privateWord, bytes32 _newHash, address _receiver, uint _amount) 
     external nonReentrant isPaused hasPaid returns(bool) {
@@ -336,6 +357,14 @@ contract Closio is ReentrancyGuard {
         uint amount = _amount*(10**18);
         tokenContractWETH.approve(address(this), amount);
     }
+    //approve closio contract before sending WETH tokens to it
+    //This function wont work because approval must be done on token contract.
+    //This function will try to approve Closio for Closio.
+    function approveClosioWeth(uint _amount) external {
+        require(_amount > 0, "approve amount must be greater than 0");
+        uint amount = _amount*(10**18);
+        tokenContractWETH.approve(address(this), amount);
+    }
  
     receive() external payable {}
     fallback() external payable {}
@@ -368,5 +397,6 @@ contract Closio is ReentrancyGuard {
     //check how you can catch the "false" booleans in withdrawPart, withdrawAll and deposit functions. If you can, then you can
     display a message on the frontend accordingly
     
+    Add a check to the frontend if user enters a repeating hash
     */
     

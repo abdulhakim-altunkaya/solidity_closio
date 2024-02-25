@@ -52,7 +52,7 @@ function WithdrawAll() {
         alert("You need to pay fee. Each time you call deposit, withdraw all or withdraw part functions, it will cost you 1 CSOL");
         return;
       }
-      //check : if system is paused
+      //check : if system is paused 
       let isSystemPaused = await contractClosio.pauseContract();
       if(isSystemPaused === true) {
         alert("System has been paused by Owner. Contact him to unpause: drysoftware1@gmail.com");
