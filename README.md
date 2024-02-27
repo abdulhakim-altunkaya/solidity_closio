@@ -1,85 +1,62 @@
-# solidity_closio
-Closio
+<h1>CLOSIO</h1>
+
+<p>Project prepared by Abdulhakim Altunkaya for BNB Chain Hackathon 2024 March</p>
+<p>Project is deployed on BNB mainnet</p>
+
+<p>Closio is a privacy-focused crypto mixing project that allows users to obfuscate the source of their funds and enhance the privacy of their transactions on the blockchain. It provides a secure and decentralized platform for users to mix the WBNB tokens, making it difficult to trace the origin and destination of funds.</p>
+
+<h2>How It Works</h2>
+
+<p>Closio utilizes a mixing process that combines the funds of multiple users, making it challenging to associate specific funds with their original sources. The basic steps involved in the mixing process are as follows:</p>
+
+<ol>
+  <li>Visit the Closio website</li>
+  <li>Connect to your Metamask account.</li>
+  <li>The project is deployed on BNB mainnet. So, make sure you have BNB coins in your wallet.</li>
+  <li>Connect your Metamask account to website.</li>
+  <li>Click on "CSOL Operations" button and mint CSOL tokens for free</li>
+  <li>To let users to test the website, you can deposit TestWBNB tokens instead of real WBNB tokens. To do that, click on "Mint TestWBNB"</li>
+  <li>Go to "Mixer Operations" section</li>
+  <li>Click on "Approve CSOL". This button will approve the platform for 10 CSOL tokens which is more than you need. Each deposit and withdrawal is 1 CSOL.</li>
+  <li>Click on "Approve WBNB". Amount is up you. You better approve more than you plan to deposit.</li>
+  <li>Pay the platform fee each time you deposit or withdraw. Each time deposit or withdraw, it is 1 CSOL</li>
+  <li>Choose a hard to guess private keyword. This keyword can be alphanumerical word. Save this private word, dont share it with anyone. You will need it, later when you withdraw money. Click on "Create Hash". You will deposit your amount with this hash. This hash is not important you can forget it. Important thing is your private word.</li>
+  <li>Deposit the amount with the hash</li>
+  <li>Later when you want to withdraw, insert your private word and receiver address. Thats it.</li>
+  <li>If you want to withdraw a part of it, you should create another hash for depositing the remaining amount.</li>
+  <li>As you can see, to deposit you just need a private word. Later anyone knowing your private word can withdraw any amount to any address. This helps with anonymous transactions.</li>
+</ol>
+
+<h2>How System works</h2>
+
+<ul>
+  <li>CSOL tokens are used to pay a platform fee for depositing and withdrawing.</li>
+  <li>Users can create a hash of any private keyword they want. This hash is a product of keccak256 function. When depositing the system will add "salt" to the hash to make the platform very secure</li>
+  <li>When withdrawing, you just need to introduce private key and a receiver address.</li>
+</ul>
+
+<h2>Contributing</h2>
+
+<p>We welcome contributions to Closio! If you'd like to contribute, please follow these guidelines:</p>
+
+<ol>
+  <li>Fork the repository.</li>
+  <li>Create a new branch for your feature or bug fix: <code>git checkout -b my-new-feature</code></li>
+  <li>Implement your changes and ensure that the code passes all tests.</li>
+  <li>Commit your changes: <code>git commit -am 'Add new feature'</code></li>
+  <li>Push to the branch: <code>git push origin my-new-feature</code></li>
+  <li>Submit a pull request.</li>
+</ol>
+
+<p>Background Image by <a href="https://www.freepik.com/free-vector/gradient-wavy-dynamic-background_18954428.htm">Freepik</a></p>
+<p>Symbol: <a href="https://www.flaticon.com/free-icons/letter-c" title="letter c icons">Letter c icons created by popo2021 - Flaticon </a></p>
 
 
-<a href="https://www.flaticon.com/free-icons/lock" title="lock icons">Lock icons created by Pixel perfect - Flaticon</a>
 
 
 
-Step 1: Define Your Project
-Conceptualization:
-
-Clearly define the purpose of your DeFi project and how your token will be utilized in the ecosystem.
-Identify the unique selling points and features that set your project apart.
-Market Research:
-
-Analyze competitors and market trends to ensure your project has a distinct advantage.
-Identify your target audience and understand their needs.
-Step 2: Tokenomics
-Token Creation:
-
-Create a smart contract for your token, ensuring it follows ERC-20 or ERC-721 standards.
-Establish the total supply, distribution, and any token burning mechanisms.
-Utility:
-
-Clearly define the utility of your token within the ecosystem.
-Plan for staking, governance, or other mechanisms that incentivize holding.
-Step 3: Smart Contract Development
-Smart Contract Audits:
-Hire reputable smart contract auditors to review and ensure the security of your code.
-Address any vulnerabilities or issues identified during the audit.
-Step 4: Website and UI/UX Design
-Website Development:
-Develop a user-friendly website with information about your project, tokenomics, and a roadmap.
-Implement security measures to protect user data.
-Step 5: Community Building
-Social Media Presence:
-
-Establish a presence on platforms like Twitter, Telegram, and Discord.
-Engage with the community, share updates, and address concerns.
-Marketing Strategy:
-
-Develop a comprehensive marketing plan that includes partnerships, influencers, and targeted campaigns.
-Utilize a mix of organic and paid strategies.
-Step 6: Token Sale
-Initial Token Sale:
-Decide on the initial token sale strategy (e.g., ICO, IDO, or private sale).
-Implement a secure and user-friendly process for token purchase.
-Step 7: Platform Integration
-CEFI and DeFi Integration:
-Integrate your token into popular centralized and decentralized exchanges and liquidity pools.
-Leverage platforms like Uniswap, Sushiswap, and others for liquidity.
-Step 8: Cross-Chain Deployment
-Cross-Chain Deployment:
-Deploy your project on multiple EVM-compatible chains like Matic, Optimism, Fantom, etc.
-Ensure interoperability and a seamless experience for users on different chains.
-Step 9: Partnerships and Collaborations
-Partnerships:
-Establish partnerships with other projects, influencers, or organizations in the blockchain space.
-Collaborate with projects that complement your ecosystem.
-Step 10: Continuous Development and Community Engagement
-Roadmap Execution:
-
-Regularly update and execute your project roadmap.
-Continue developing new features and functionalities.
-Community Engagement:
-
-Maintain open communication with your community.
-Consider implementing governance mechanisms for community involvement.
-Step 11: Regulatory Compliance
-Legal Compliance:
-Ensure your project complies with the regulatory requirements of the jurisdictions you operate in.
-Seek legal advice to avoid any legal complications.
-Step 12: Scaling and Sustainability
-Scaling:
-
-Monitor and analyze user feedback to make improvements.
-Explore additional partnerships and scaling opportunities.
-Sustainability:
-
-Develop strategies to sustain and grow your project beyond the initial launch.
 
 
-Image by <a href="https://www.freepik.com/free-vector/gradient-wavy-dynamic-background_18954428.htm">Freepik</a>
 
-<a href="https://www.flaticon.com/free-icons/letter-c" title="letter c icons">Letter c icons created by popo2021 - Flaticon</a>
+
+

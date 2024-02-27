@@ -96,7 +96,7 @@ function Deposit() {
         alert("You probably entered one of your old hash. Create a new hash. Then pay fee again. And then call deposit function.");
         return;
       } else {
-        setMessage(`You successfully deposited ${amountInput1} WETH`);
+        setMessage(`You successfully deposited ${amountInput1} WBNB`);
       }
     } catch (error) {
       // Check if the error contains the "transaction" field

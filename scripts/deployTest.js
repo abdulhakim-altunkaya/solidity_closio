@@ -1,9 +1,9 @@
 const hre = require("hardhat");
 async function main() {
-  const testweth = await hre.ethers.deployContract("TestWETH", [100000000]);
-  await testweth.deployed();
+  const testWBNB = await hre.ethers.deployContract("TestWBNB", [1000000000]);
+  await testWBNB.deployed();
   console.log(
-    `testweth deployed to address: ${testweth.address}`
+    `TestWBNB deployed to address: ${testWBNB.address}`
   );
 }
 main().catch((error) => {

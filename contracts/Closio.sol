@@ -373,5 +373,7 @@ contract Closio is ReentrancyGuard {
     display a message on the frontend accordingly
     
     Add a check to the frontend if user enters a repeating hash
+
+    mANAGE decimal numbers on deposit and withdraw part components. For that you will also need to update the contract functions I guess
     */
     
