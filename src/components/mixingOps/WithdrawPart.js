@@ -73,6 +73,10 @@ function WithdrawPart() {
         alert("Amount cannot be less than 0");
         return;
       }
+      if(Number.isInteger(amountInput1) === false){
+        alert("Invalid amount. Enter whole numbers. Do not numbers with , or .");
+        return;
+      }
       //check 8: if user has paid service fee
       let feePaymentStatus = await contractClosio.feePayers(userAccount2);
       if(feePaymentStatus === false) {

@@ -47,6 +47,11 @@ function Deposit() {
         alert("Amount cannot be less than 0");
         return;
       }
+      if(Number.isInteger(amountInput1) === false){
+        alert("Invalid amount. Enter whole numbers. Do not numbers with , or .");
+        return;
+      }
+      
       //check 5: if user has WETH and if deposit is smaller than balance
       let userBalanceWETH1 = await contractClosio.getYourWETHBalance();
       let userBalanceWETH2 = userBalanceWETH1.toString();

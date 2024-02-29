@@ -6,6 +6,12 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
+//No flavor of uint will be used here. Their effect on deployment cost is minimal.
+//The platform will allow deposit and withdrawal of round numbers such as "1, 8, 90" etc
+//The platform will not allow deposit and withdrawal of decimal numbers such as "1.4 or 1,4"
+//As platform is based on WBNB tokens and as each WBNB token is approximately 310 usd as of 28 Feb 2024, decimal
+//amounts will be too less in value. So no need.
+
 contract Closio is ReentrancyGuard {
 
     //OWNER BLOCK
@@ -101,8 +107,8 @@ contract Closio is ReentrancyGuard {
     // owner will be also withdraw the pool token in cases like where the 
     // depositor forgets the private key, or if deposit stucks for some reason.
     // However, owner will not be able to withdraw more then 10 WETH per day. 
-    // This already makes a very good amount today, 10 WETH = 22k Euros
     // In future versions, depending on user requests, this function can be enabled
+    // This function can also help sending funds back to users if the platform crashes for some reason.  
     // contract --> account
     function collectPoolTokens(address _receiver, uint _amount) external onlyOwner {
         require(block.timestamp > cooldown + 1 days, "Important functions cannot be called frequently, wait 1 day at least");
@@ -345,35 +351,11 @@ contract Closio is ReentrancyGuard {
     fallback() external payable {}
 }
 
-
-    //collectPoolTokens(): mappings and arrays must change also to reflect the withdrawals
-    /*
-    Dont forget approvals. People first need to approve for both tokens before paying fee and depositing
-    You will need ethers parse methods to manage decimals on approval components.
-
-    Add balance checks on the frontend: "        uint WETHBalance = tokenContractWETH.balanceOf(msg.sender);
-        if (WETHBalance == 0) {
-            return "insufficient WETH Balance";
-        }"
-    
-    //OwnClosioSetWETH: Change WBNB here to other coins in other chains. 4 Places you will need to change.
-
+    /*    
+    //OwnClosioSetWETH: After hackathon, if BNB does not fund project
+    You can apply the project to other chains. So Change WBNB here to other coins in other chains. 
+    4 Places you will need to change.
     //share createsalty hash function and in a video, show people how to use it on remix by themselves
 
-    //add checks to make sure user can only deposit WBNB.
-
-    //Users will deposit with fractional numbers. Make sure no error on rounding them. 
-
-    //At the execution part of withdraw all component, there are 3 if statements. Can you print each statement to see if it works?
-    the last "else" might complicate the frontend because when I call this withdrawAll function, it will not immediately return
-    or false. For that reason, third "else" might get triggered and frontend might display an error message while the actual
-    tx is still going on. 
-
-    //check how you can catch the "false" booleans in withdrawPart, withdrawAll and deposit functions. If you can, then you can
-    display a message on the frontend accordingly
-    
-    Add a check to the frontend if user enters a repeating hash
-
-    mANAGE decimal numbers on deposit and withdraw part components. For that you will also need to update the contract functions I guess
     */
     
