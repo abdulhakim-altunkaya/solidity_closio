@@ -1,13 +1,8 @@
 import React, {useState} from 'react';
-//getting user account info from redux storage
-import { useSelector } from "react-redux";
 //getting contract from zustand store
 import { useAccount } from '../../Store';
 
 function GetBalances() {
-
-  //fetching user account from redux storage. 
-  const userAccount2 = useSelector( (state) => state.userAccount);
 
   //fetching closio contract from zustand storage
   const contractClosio = useAccount(state => state.contractClosio2);

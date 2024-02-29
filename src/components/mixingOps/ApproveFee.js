@@ -11,7 +11,6 @@ function ApproveFee() {
   const userAccount2 = useSelector( (state) => state.userAccount);
 
   //fetching closio and csol contracts from zustand storage
-  const contractClosio = useAccount(state => state.contractClosio2);
   const contractCSOL = useAccount(state => state.contractCsol2);
 
   let [message, setMessage] = useState("");

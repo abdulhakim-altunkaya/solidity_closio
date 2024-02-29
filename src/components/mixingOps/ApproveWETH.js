@@ -15,7 +15,6 @@ function ApproveWETH() {
 
   //fetching closio and csol contracts from zustand storage
   const contractClosio = useAccount(state => state.contractClosio2);
-  const contractCSOL = useAccount(state => state.contractCsol2);
   const contractWETH = useAccount(state => state.contractWETH2);
 
   let [amount, setAmount] = useState("");
