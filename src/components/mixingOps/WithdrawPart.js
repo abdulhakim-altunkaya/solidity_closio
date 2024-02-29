@@ -3,8 +3,6 @@ import React, {useState} from 'react';
 import { useSelector } from "react-redux";
 //getting contract from zustand store
 import { useAccount } from '../../Store';
-import { AddressClosio } from "../addressABI/addressClosio";
-
 import { useMediaQuery } from 'react-responsive';
 
 function WithdrawPart() {
@@ -73,7 +71,7 @@ function WithdrawPart() {
         alert("Amount cannot be less than 0");
         return;
       }
-      if(Number.isInteger(amountInput1) === false){
+      if(Number.isInteger(amount1) === false){
         alert("Invalid amount. Enter whole numbers. Do not numbers with , or .");
         return;
       }

@@ -3,8 +3,6 @@ import React, {useState} from 'react';
 import { useSelector } from "react-redux";
 //getting contract from zustand store
 import { useAccount } from '../../Store';
-import { AddressClosio } from "../addressABI/addressClosio";
-
 import { useMediaQuery } from 'react-responsive';
 
 function Deposit() {
@@ -16,7 +14,6 @@ function Deposit() {
 
   //fetching closio and csol contracts from zustand storage
   const contractClosio = useAccount(state => state.contractClosio2);
-  const contractCSOL = useAccount(state => state.contractCsol2);
   
   let [hashInput, setHashInput] = useState("");
   let [amountInput, setAmountInput] = useState("");
