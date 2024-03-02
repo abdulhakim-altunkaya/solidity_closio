@@ -9,11 +9,11 @@ module.exports = {
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
     fantom: {
-      url: process.env.PROVIDER_URL,
+      url: process.env.PROVIDER_URL_2,
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
     polygon: {
-      url: process.env.PROVIDER_URL,
+      url: process.env.PROVIDER_URL_3,
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
     fantomtest: {
