@@ -95,7 +95,7 @@ function Deposit() {
       let tx = await contractClosio.deposit(hashInput, amountInput);
       await tx.wait();
       if(tx === false) {
-        alert("You probably entered one of your old hash. Create a new hash. Then pay fee again. And then call deposit function.");
+        alert("Probably invalid hash. Create a new hash. Then pay fee again. And then call deposit function.");
         return;
       } else {
         setMessage(`You successfully deposited ${amountInput1} WBNB`);

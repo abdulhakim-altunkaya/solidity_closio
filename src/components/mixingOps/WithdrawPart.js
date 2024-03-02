@@ -120,7 +120,7 @@ function WithdrawPart() {
       <input type="number" className='inputFields' placeholder='amount' 
       value={amount} onChange={e => setAmount(e.target.value)} />
       <input type="text" className='inputFields' placeholder='new hash' 
-      value={newHash} onChange={e => setNewHash(e.target.value)} />{message}
+      value={newHash} onChange={e => setNewHash(e.target.value)} />{isMobile ? <br/> : "  "}{message}
     </div>
   )
 }

@@ -14,7 +14,7 @@ let provider;
 let contractCsol1;
 let contractClosio1;
 let contractWETH1;
-let contractTestWBNB1
+let contractTestWBNB1;
 
 
 const connectContract = async () => {
