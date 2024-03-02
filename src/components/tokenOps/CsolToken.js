@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import CsolMint from "./CsolMint";
 import CsolBurn from "./CsolBurn";
 import CsolBalance from "./CsolBalance";
+import TestWBNBmint from "./TestWBNBmint";
 
 function CsolToken() {
 
@@ -19,6 +20,7 @@ function CsolToken() {
             <CsolMint />
             <CsolBurn />
             <CsolBalance />
+            <TestWBNBmint />
           </>
         :
           <></>

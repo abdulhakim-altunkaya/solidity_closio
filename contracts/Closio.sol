@@ -357,5 +357,9 @@ contract Closio is ReentrancyGuard {
     4 Places you will need to change.
     //share createsalty hash function and in a video, show people how to use it on remix by themselves
 
+    //In Store.js i have     contractWETH1 and contractTestWBNB1. Before final deployment delete ContractTestWBNB settings inside
+    Store.js with its import statements. Also delete ABITestWBNB.js, addressTestWBNB.js and TestWBNBmint.js files. Also remove 
+    TestWBNBmint component and also remove TestWBNBmint import statement from CsolToken.js
+
     */
     

@@ -1,0 +1,1 @@
+export const AddressTestWBNB = "0x4D31d66361c44B64d11EC6a7DC18f2Fab5684fdC"  
