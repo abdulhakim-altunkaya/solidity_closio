@@ -362,5 +362,13 @@ contract Closio is ReentrancyGuard {
     Store.js with its import statements. Also delete ABITestWBNB.js, addressTestWBNB.js and TestWBNBmint.js files. Also remove 
     TestWBNBmint component and also remove TestWBNBmint import statement from CsolToken.js
 
+    When converting from TestWBNB to WBNB, DELETE: 
+        addressTestWBNB.js, ABITestWBNB.js --> addressABI folder
+        TestWBNB.sol --> contracts
+        deployTest.js --> scripts
+        let contractTestWBNB1 and its related code ---> Store.js
+        TestWBNBmint.js ---> tokenOps
+        TestWBNBmint related code ---> CsolToken.js
+    
     */
     
